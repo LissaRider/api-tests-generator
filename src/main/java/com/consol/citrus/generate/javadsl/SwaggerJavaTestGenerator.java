@@ -79,12 +79,6 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
     private JsonPathMappingDataDictionary inboundDataDictionary = new JsonPathMappingDataDictionary();
     private JsonPathMappingDataDictionary outboundDataDictionary = new JsonPathMappingDataDictionary();
 
-    public static void main(String[] args) {
-        SwaggerJavaTestGenerator generator = new SwaggerJavaTestGenerator();
-        generator.swaggerResource = " file:///home/alexander/Citrus/test-generator/src/main/resources/petstore.json";
-        generator.create();
-    }
-
     @Override
     protected JavaFile.Builder createJavaFileBuilder(TypeSpec.Builder testTypeBuilder) {
         return super.createJavaFileBuilder(testTypeBuilder)
@@ -159,7 +153,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                     }
 
                     if (response != null) {
-                        responseMessage.status(HttpStatus.OK);
+                        responseMessage.status(HttpStatus.NOT_FOUND);
 
                         if (response.getHeaders() != null) {
                             for (Map.Entry<String, Property> header : response.getHeaders().entrySet()) {

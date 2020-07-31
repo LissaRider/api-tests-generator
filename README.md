@@ -4,7 +4,7 @@
 
 mvn clean install
 
-2. Add plugin in your project:
+2. Add plugins in your project:
 
 ```xml
 <plugin>
@@ -34,4 +34,40 @@ mvn clean install
                     </tests>
                 </configuration>
             </plugin>
+
+            <plugin>
+    <groupId>org.codehaus.mojo</groupId>
+    <artifactId>build-helper-maven-plugin</artifactId>
+    <version>3.0.0</version>
+    <executions>
+      <execution>
+        <id>add-test-sources</id>
+        <phase>generate-test-sources</phase>
+        <goals>
+          <goal>add-test-source</goal>
+        </goals>
+        <configuration>
+          <sources>
+            <source>/home/sven/IdeaProjects/citrus-website/target/generated/citrus/java</source>
+          </sources>
+        </configuration>
+      </execution>
+      <execution>
+        <id>add-test-resources</id>
+        <phase>generate-test-resources</phase>
+        <goals>
+          <goal>add-test-resource</goal>
+        </goals>
+        <configuration>
+          <resources>
+            <resource>
+              <directory>/home/sven/IdeaProjects/citrus-website/target/generated/citrus/resources</directory>
+            </resource>
+          </resources>
+        </configuration>
+      </execution>
+    </executions>
+</plugin>
   ```
+  
+  

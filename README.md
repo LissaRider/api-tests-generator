@@ -6,6 +6,7 @@ mvn clean install
 
 2. Add plugin in your project:
 
+```xml
 <plugin>
                 <groupId>com.consol.citrus</groupId>
                 <artifactId>generator-maven-plugin</artifactId>
@@ -33,3 +34,4 @@ mvn clean install
                     </tests>
                 </configuration>
             </plugin>
+  ```

@@ -153,7 +153,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                     }
 
                     if (response != null) {
-                        responseMessage.status(HttpStatus.NOT_FOUND);
+                        responseMessage.status(HttpStatus.OK);
 
                         if (response.getHeaders() != null) {
                             for (Map.Entry<String, Property> header : response.getHeaders().entrySet()) {

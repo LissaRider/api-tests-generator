@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
  * This is a sample test
  *
  * @author Christoph
- * @since 2020-07-31
+ * @since 2020-08-03
  */
 public class SampleReqResIT extends TestNGCitrusSupport {
     @CitrusTest

@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
  * TODO: Description
  *
  * @author Unknown
- * @since 2020-07-31
+ * @since 2020-08-03
  */
 public class SampleIT extends TestNGCitrusSupport {
     @CitrusXmlTest(

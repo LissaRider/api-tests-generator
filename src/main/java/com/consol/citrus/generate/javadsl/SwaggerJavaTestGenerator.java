@@ -100,77 +100,88 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
         for (Map.Entry<String, Path> path : swagger.getPaths().entrySet()) {
             for (Map.Entry<HttpMethod, Operation> operation : path.getValue().getOperationMap().entrySet()) {
+                for (Map.Entry<String, Response> pair : operation.getValue().getResponses().entrySet()) {
+                    String code = pair.getKey();
 
-                // Now generate it
-                withName(namePrefix + operation.getValue().getOperationId() + nameSuffix);
+                    // Now generate it
+                    withName(namePrefix + operation.getValue().getOperationId() + "_" + code + nameSuffix);
 
-                HttpMessage requestMessage = new HttpMessage();
+                    HttpMessage requestMessage = new HttpMessage();
 
-                if (getMode().equals(GeneratorMode.CLIENT)) {
-                    String randomizedPath = path.getKey();
-                    if (operation.getValue().getParameters() != null) {
-                        List<PathParameter> pathParams = operation.getValue().getParameters().stream()
-                                .filter(p -> p instanceof PathParameter)
-                                .map(PathParameter.class::cast)
-                                .collect(Collectors.toList());
+                    if (getMode().equals(GeneratorMode.CLIENT)) {
+                        String randomizedPath = path.getKey();
+                        if (operation.getValue().getParameters() != null) {
+                            List<PathParameter> pathParams = operation.getValue().getParameters().stream()
+                                    .filter(p -> p instanceof PathParameter)
+                                    .map(PathParameter.class::cast)
+                                    .collect(Collectors.toList());
 
-                        for (PathParameter parameter : pathParams) {
-                            randomizedPath = randomizedPath.replaceAll("\\{" + parameter.getName() + "\\}", createRandomValueExpression(parameter));
-                        }
-                    }
-
-                    requestMessage.path(Optional.ofNullable(contextPath).orElse("") + Optional.ofNullable(swagger.getBasePath()).filter(basePath -> !basePath.equals("/")).orElse("") + randomizedPath);
-                } else {
-                    requestMessage.path("@assertThat(matchesPath(" + path.getKey() + "))@");
-                }
-                requestMessage.method(org.springframework.http.HttpMethod.valueOf(operation.getKey().name()));
-
-                if (operation.getValue().getParameters() != null) {
-                    operation.getValue().getParameters().stream()
-                            .filter(p -> p instanceof HeaderParameter)
-                            .filter(Parameter::getRequired)
-                            .forEach(p -> requestMessage.setHeader(p.getName(), getMode().equals(GeneratorMode.CLIENT) ? createRandomValueExpression(((HeaderParameter) p).getItems(), swagger.getDefinitions(), false) : createValidationExpression(((HeaderParameter) p).getItems(), swagger.getDefinitions(), false)));
-
-                    operation.getValue().getParameters().stream()
-                            .filter(param -> param instanceof QueryParameter)
-                            .filter(Parameter::getRequired)
-                            .forEach(param -> requestMessage.queryParam(param.getName(), getMode().equals(GeneratorMode.CLIENT) ? createRandomValueExpression((QueryParameter) param) : createValidationExpression((QueryParameter) param)));
-
-                    operation.getValue().getParameters().stream()
-                            .filter(p -> p instanceof BodyParameter)
-                            .filter(Parameter::getRequired)
-                            .findFirst()
-                            .ifPresent(p -> requestMessage.setPayload(getMode().equals(GeneratorMode.CLIENT) ? createOutboundPayload(((BodyParameter) p).getSchema(), swagger.getDefinitions()) : createInboundPayload(((BodyParameter) p).getSchema(), swagger.getDefinitions())));
-                }
-                withRequest(requestMessage);
-
-                HttpMessage responseMessage = new HttpMessage();
-                if (operation.getValue().getResponses() != null) {
-
-                    Response response = operation.getValue().getResponses().get("200");
-                    if (response == null) {
-                        response = operation.getValue().getResponses().get("default");
-                    }
-
-                    if (response != null) {
-                        responseMessage.status(HttpStatus.OK);
-
-                        if (response.getHeaders() != null) {
-                            for (Map.Entry<String, Property> header : response.getHeaders().entrySet()) {
-                                responseMessage.setHeader(header.getKey(), getMode().equals(GeneratorMode.CLIENT) ? createValidationExpression(header.getValue(), swagger.getDefinitions(), false) : createRandomValueExpression(header.getValue(), swagger.getDefinitions(), false));
+                            for (PathParameter parameter : pathParams) {
+                                randomizedPath = randomizedPath.replaceAll("\\{" + parameter.getName() + "\\}", createRandomValueExpression(parameter));
                             }
                         }
 
-                        if (response.getSchema() != null) {
-                            responseMessage.setPayload(getMode().equals(GeneratorMode.CLIENT) ? createInboundPayload(response.getSchema(), swagger.getDefinitions()): createOutboundPayload(response.getSchema(), swagger.getDefinitions()));
+                        requestMessage.path(Optional.ofNullable(contextPath).orElse("") + Optional.ofNullable(swagger.getBasePath()).filter(basePath -> !basePath.equals("/")).orElse("") + randomizedPath);
+                    } else {
+                        requestMessage.path("@assertThat(matchesPath(" + path.getKey() + "))@");
+                    }
+                    requestMessage.method(org.springframework.http.HttpMethod.valueOf(operation.getKey().name()));
+
+                    if (operation.getValue().getParameters() != null) {
+                        operation.getValue().getParameters().stream()
+                                .filter(p -> p instanceof HeaderParameter)
+                                .filter(Parameter::getRequired)
+                                .forEach(p -> requestMessage.setHeader(p.getName(), getMode().equals(GeneratorMode.CLIENT) ? createRandomValueExpression(((HeaderParameter) p).getItems(), swagger.getDefinitions(), false) : createValidationExpression(((HeaderParameter) p).getItems(), swagger.getDefinitions(), false)));
+
+                        operation.getValue().getParameters().stream()
+                                .filter(param -> param instanceof QueryParameter)
+                                .filter(Parameter::getRequired)
+                                .forEach(param -> requestMessage.queryParam(param.getName(), getMode().equals(GeneratorMode.CLIENT) ? createRandomValueExpression((QueryParameter) param) : createValidationExpression((QueryParameter) param)));
+
+                        operation.getValue().getParameters().stream()
+                                .filter(p -> p instanceof BodyParameter)
+                                .filter(Parameter::getRequired)
+                                .findFirst()
+                                .ifPresent(p -> requestMessage.setPayload(getMode().equals(GeneratorMode.CLIENT) ? createOutboundPayload(((BodyParameter) p).getSchema(), swagger.getDefinitions()) : createInboundPayload(((BodyParameter) p).getSchema(), swagger.getDefinitions())));
+                    }
+                    withRequest(requestMessage);
+
+                    HttpMessage responseMessage = new HttpMessage();
+                    if (operation.getValue().getResponses() != null) {
+
+                        Response response = pair.getValue();
+
+                        if (response != null) {
+                            if (code.equalsIgnoreCase("default")) {
+                                responseMessage.status(HttpStatus.OK);
+                            }
+                            else {
+                                try {
+                                    int status = Integer.parseInt(code);
+                                    responseMessage.status(HttpStatus.valueOf(status));
+                                } catch (NumberFormatException e) {
+                                    responseMessage.status(HttpStatus.OK);
+                                    log.warn("Cannot create new test case for status code: '" + code + "' Created by default");
+                                }
+                            }
+
+                            if (response.getHeaders() != null) {
+                                for (Map.Entry<String, Property> header : response.getHeaders().entrySet()) {
+                                    responseMessage.setHeader(header.getKey(), getMode().equals(GeneratorMode.CLIENT) ? createValidationExpression(header.getValue(), swagger.getDefinitions(), false) : createRandomValueExpression(header.getValue(), swagger.getDefinitions(), false));
+                                }
+                            }
+
+                            if (response.getSchema() != null) {
+                                responseMessage.setPayload(getMode().equals(GeneratorMode.CLIENT) ? createInboundPayload(response.getSchema(), swagger.getDefinitions()) : createOutboundPayload(response.getSchema(), swagger.getDefinitions()));
+                            }
                         }
                     }
+                    withResponse(responseMessage);
+
+                    super.create();
+
+                    log.info("Successfully created new test case " + getTargetPackage() + "." + getName());
                 }
-                withResponse(responseMessage);
-
-                super.create();
-
-                log.info("Successfully created new test case " + getTargetPackage() + "." + getName());
             }
         }
     }

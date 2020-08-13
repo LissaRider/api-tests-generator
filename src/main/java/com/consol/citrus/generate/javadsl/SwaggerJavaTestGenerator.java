@@ -88,6 +88,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
     @Override
     public void create() {
         Swagger swagger;
+
         try {
             swagger = new SwaggerParser().parse(FileUtils.readToString(new PathMatchingResourcePatternResolver().getResource(swaggerResource)));
         } catch (IOException e) {

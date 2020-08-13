@@ -27,7 +27,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-class HttpCodeProvider {
+public class HttpCodeProvider {
+    private static boolean coverage;
+
+    public static void setCoverage(boolean coverage) {
+        HttpCodeProvider.coverage = coverage;
+    }
 
     private MessageCodeProvider messageCodeProvider = new MessageCodeProvider();
 
@@ -54,7 +59,7 @@ class HttpCodeProvider {
     }
 
     private void providePath(final CodeBlock.Builder code, final HttpMessage message, final String method) {
-        code.add(".$L($L)\n",
+        code.add(".$L(InterceptorHandler.getPath($L))\n",
                 method.toLowerCase(),
                 Optional.ofNullable(message.getPath())
                         .map(Object::toString)

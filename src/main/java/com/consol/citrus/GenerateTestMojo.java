@@ -25,6 +25,7 @@ import com.consol.citrus.generate.javadsl.JavaDslTestGenerator;
 import com.consol.citrus.generate.javadsl.SwaggerJavaTestGenerator;
 import com.consol.citrus.generate.javadsl.WsdlJavaTestGenerator;
 import com.consol.citrus.generate.javadsl.XsdJavaTestGenerator;
+import com.consol.citrus.generate.provider.http.HttpCodeProvider;
 import com.consol.citrus.generate.xml.SwaggerXmlTestGenerator;
 import com.consol.citrus.generate.xml.WsdlXmlTestGenerator;
 import com.consol.citrus.generate.xml.XmlTestGenerator;
@@ -50,6 +51,9 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
 
     @Parameter(property = "citrus.build.directory", defaultValue= "${project.build.directory}/generated/citrus")
     protected String buildDirectory = "target/generated/citrus";
+
+    @Parameter(property = "citrus.build.coverage", defaultValue = "false")
+    protected boolean coverage;
 
     private final XmlTestGenerator xmlTestGenerator;
     private final XsdXmlTestGenerator xsdXmlTestGenerator;
@@ -109,6 +113,8 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
         if (skipGenerateTest) {
             return;
         }
+
+        HttpCodeProvider.setCoverage(coverage);
 
         for (TestConfiguration test : getTests()) {
             if (test.getXsd() != null) {
@@ -254,7 +260,8 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
      * .
      * @return test generator.
      */
-    public SwaggerTestGenerator getSwaggerTestGenerator() {
+    public SwaggerTestGenerator
+    getSwaggerTestGenerator() {
         if (getType().equals("java")) {
             return Optional.ofNullable(swaggerJavaTestGenerator).orElse(new SwaggerJavaTestGenerator());
         } else {

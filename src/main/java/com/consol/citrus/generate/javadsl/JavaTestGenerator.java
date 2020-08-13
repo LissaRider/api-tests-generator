@@ -211,7 +211,7 @@ public class JavaTestGenerator<T extends JavaTestGenerator> extends AbstractTest
     /**
      * Sets the mode.
      *
-     * @param mode The mode to set (client/server
+     * @param mode The mode to set (client/server)
      */
     public void setMode(final GeneratorMode mode) {
         this.mode = mode;

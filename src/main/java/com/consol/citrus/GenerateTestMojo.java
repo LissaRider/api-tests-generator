@@ -53,7 +53,7 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
     protected String buildDirectory = "target/generated/citrus";
 
     @Parameter(property = "citrus.build.coverage", defaultValue = "false")
-    protected boolean coverage;
+    protected boolean isCoverage;
 
     private final XmlTestGenerator xmlTestGenerator;
     private final XsdXmlTestGenerator xsdXmlTestGenerator;
@@ -114,7 +114,7 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
             return;
         }
 
-        HttpCodeProvider.setCoverage(coverage);
+        HttpCodeProvider.setCoverage(isCoverage);
 
         for (TestConfiguration test : getTests()) {
             if (test.getXsd() != null) {

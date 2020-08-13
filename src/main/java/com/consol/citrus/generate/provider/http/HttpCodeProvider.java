@@ -23,15 +23,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
+import ru.lanit.utils.InterceptorHandler;
 
 import java.util.Optional;
 import java.util.stream.Stream;
 
 public class HttpCodeProvider {
-    private static boolean coverage;
+    private static boolean isCoverage;
 
     public static void setCoverage(boolean coverage) {
-        HttpCodeProvider.coverage = coverage;
+        HttpCodeProvider.isCoverage = coverage;
     }
 
     private MessageCodeProvider messageCodeProvider = new MessageCodeProvider();
@@ -59,12 +60,21 @@ public class HttpCodeProvider {
     }
 
     private void providePath(final CodeBlock.Builder code, final HttpMessage message, final String method) {
-        code.add(".$L(InterceptorHandler.getPath($L))\n",
-                method.toLowerCase(),
-                Optional.ofNullable(message.getPath())
-                        .map(Object::toString)
-                        .map(path -> "\"" + path + "\"")
-                        .orElse(""));
+        if (isCoverage) {
+            code.add(".$L($T.getPath($L))\n",
+                    method.toLowerCase(), InterceptorHandler.class,
+                    Optional.ofNullable(message.getPath())
+                            .map(Object::toString)
+                            .map(path -> "\"" + path + "\"")
+                            .orElse(""));
+        } else {
+            code.add(".$L($L)\n",
+                    method.toLowerCase(),
+                    Optional.ofNullable(message.getPath())
+                            .map(Object::toString)
+                            .map(path -> "\"" + path + "\"")
+                            .orElse(""));
+        }
     }
 
     private void provideQueryParameter(final CodeBlock.Builder code, final HttpMessage message) {

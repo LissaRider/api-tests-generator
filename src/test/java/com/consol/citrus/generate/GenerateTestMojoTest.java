@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.consol.citrus;
+package com.consol.citrus.generate;
 
+import com.consol.citrus.GenerateTestMojo;
 import com.consol.citrus.config.tests.SwaggerConfiguration;
 import com.consol.citrus.config.tests.TestConfiguration;
 import com.consol.citrus.config.tests.WsdlConfiguration;

@@ -16,7 +16,7 @@ Maven - 3.3 и выше
 Далее добавить в проект следующую конфигурацию плагина в POM-файл Maven:
 ```xml
             <plugin>
-                <groupId>com.consol.citrus</groupId>
+                <groupId>ru.lanit.generator</groupId>
                 <artifactId>generator-maven-plugin</artifactId>
                 <version>2.1.3</version>
                 <executions>
@@ -29,13 +29,13 @@ Maven - 3.3 и выше
                     </execution>
                 </executions>
                 <configuration>
-                    <type>java</type>
                     <framework>testng</framework>
                     <isCoverage>true</isCoverage>
                     <buildDirectory>${project.basedir}/src/test</buildDirectory>
                     <tests>
                         <test>
                             <endpoint>httpClient</endpoint>
+                            <author>Unknown</author>
                             <swagger>
                                 <file>file://${project.basedir}/src/test/resources/petstore.json</file>
                             </swagger>
@@ -44,10 +44,19 @@ Maven - 3.3 и выше
                 </configuration>
             </plugin>
 ```
-где указывается путь к файлу спецификации Swagger OpenAPI:
-```xml
-<file>file://${project.basedir}/src/test/resources/petstore.json</file>
-```
+Конфигурация плагина
+-------------------- 
+Основные настройки:  
+`<framework>` - использование тестового фреймворка: testng, junit4, junit5. По умолчанию: testng;  
+`<isCoverage>` - генерация декодера для citrus-swagger-covegare. По умолчанию: false;  
+`<buildDirectory>` - директория куда будут сгенерированы тесты. По умолчанию: /target/generated/citrus/;  
+`<file>` - путь к файлу спецификации Swagger OpenAPI;
+
+Настройки тестов:  
+`<endpoint>` - указывает адрес тестируемого сервиса;  
+`<author>` - указывает в javaDoc имя автора тестов. По умолчанию: "Unknown";  
+`<packageName>` - задаёт структуру папок для сгенерированных тестов. По умолчанию: com.consol.citrus;  
+`<description>` - создаёт описание тестов в javaDoc. По умолчанию: "TODO: Description";  
 
 Для работы тестов необходимо добавить ряд зависимостей:
 ```xml

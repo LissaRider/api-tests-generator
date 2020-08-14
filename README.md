@@ -18,7 +18,7 @@ Maven - 3.3 и выше
             <plugin>
                 <groupId>com.consol.citrus</groupId>
                 <artifactId>generator-maven-plugin</artifactId>
-                <version>2.0.0</version>
+                <version>2.1.3</version>
                 <executions>
                     <execution>
                         <id>generate-tests</id>
@@ -31,12 +31,13 @@ Maven - 3.3 и выше
                 <configuration>
                     <type>java</type>
                     <framework>testng</framework>
+                    <isCoverage>true</isCoverage>
+                    <buildDirectory>${project.basedir}/src/test</buildDirectory>
                     <tests>
                         <test>
-                            <endpoint>todoClient</endpoint>
-                            <disabled>true</disabled>
+                            <endpoint>httpClient</endpoint>
                             <swagger>
-                                <file>file://${project.basedir}/src/test/resources/swagger.json</file>
+                                <file>file://${project.basedir}/src/test/resources/petstore.json</file>
                             </swagger>
                         </test>
                     </tests>
@@ -45,47 +46,9 @@ Maven - 3.3 и выше
 ```
 где указывается путь к файлу спецификации Swagger OpenAPI:
 ```xml
-<file>file://${project.basedir}/src/test/resources/swagger.json</file>
+<file>file://${project.basedir}/src/test/resources/petstore.json</file>
 ```
 
-Так же можно добавить дополнительный плагин 'build-helper-maven-plugin'  
-Он добавляет сгенерированные тесты в компиляцию проекта Maven.  
-Это автоматически активирует сгенерированные тесты для выполнения с жизненным циклом сборки Maven на этапе тестирования.
-```xml
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <id>add-test-sources</id>
-                        <phase>generate-test-sources</phase>
-                        <goals>
-                            <goal>add-test-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${project.build.directory}/generated/citrus/java</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>add-test-resources</id>
-                        <phase>generate-test-resources</phase>
-                        <goals>
-                            <goal>add-test-resource</goal>
-                        </goals>
-                        <configuration>
-                            <resources>
-                                <resource>
-                                    <directory>${project.build.directory}/generated/citrus/resources</directory>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-```
 Для работы тестов необходимо добавить ряд зависимостей:
 ```xml
     <dependencies>
@@ -143,6 +106,3 @@ Maven - 3.3 и выше
 Генерация тестового кода происходит в жизненном цикле сборки Maven и использует плагин generator-maven-plugin.  
 Выполняется с помощью команды:
 >mvn clean install
-
-По умолчанию тесты генерируются в каталог: 
->target/generated/citrus

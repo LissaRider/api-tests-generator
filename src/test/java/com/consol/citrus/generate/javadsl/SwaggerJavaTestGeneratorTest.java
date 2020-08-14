@@ -18,13 +18,16 @@ package com.consol.citrus.generate.javadsl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 
 import com.consol.citrus.CitrusSettings;
 import com.consol.citrus.generate.TestGenerator;
 import com.consol.citrus.generate.UnitFramework;
 import com.consol.citrus.util.FileUtils;
+import com.consol.citrus.utils.CleanupUtils;
 import org.springframework.core.io.FileSystemResource;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -32,6 +35,14 @@ import org.testng.annotations.Test;
  * @since 2.7.4
  */
 public class SwaggerJavaTestGeneratorTest {
+    private String testDir = CitrusSettings.DEFAULT_TEST_SRC_DIRECTORY + "java/com/consol/citrus/";
+
+    private final CleanupUtils cleanupUtils = new CleanupUtils();
+
+    @AfterMethod
+    public void cleanUp(){
+        cleanupUtils.deleteFiles(testDir, Collections.singleton("UserLogin*"));
+    }
 
     @Test
     public void testCreateTestAsClient() throws IOException {

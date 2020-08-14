@@ -185,12 +185,20 @@
 
     <!--Coverage-->
     <dependency>
-      <groupId>org.example</groupId>
+      <groupId>citrus-swagger-coverage</groupId>
       <artifactId>citrus-swagger-coverage</artifactId>
-      <version>1.0-SNAPSHOT</version>
-      <scope>system</scope>
-      <systemPath>/home/alexander/citrus-swagger-coverage-1.0-SNAPSHOT.jar</systemPath>
+      <version>1.0</version>
     </dependency>
   </dependencies>
 
+  <repositories>
+    <repository>
+      <id>[name-project]-mvn-repo</id>
+      <url>https://raw.github.com/NikolaysSamokhin/CitrusCoverage/mvn-repo/</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
+  </repositories>
 </project>

@@ -109,23 +109,9 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
                     HttpMessage requestMessage = new HttpMessage();
 
-                    if (getMode().equals(GeneratorMode.CLIENT)) {
-                        String randomizedPath = path.getKey();
-                        if (operation.getValue().getParameters() != null) {
-                            List<PathParameter> pathParams = operation.getValue().getParameters().stream()
-                                    .filter(p -> p instanceof PathParameter)
-                                    .map(PathParameter.class::cast)
-                                    .collect(Collectors.toList());
+                    String randomizedPath = path.getKey();
+                    requestMessage.path(Optional.ofNullable(contextPath).orElse("") + randomizedPath);
 
-                            for (PathParameter parameter : pathParams) {
-                                randomizedPath = randomizedPath.replaceAll("\\{" + parameter.getName() + "\\}", createRandomValueExpression(parameter));
-                            }
-                        }
-
-                        requestMessage.path(Optional.ofNullable(contextPath).orElse("") + Optional.ofNullable(swagger.getBasePath()).filter(basePath -> !basePath.equals("/")).orElse("") + randomizedPath);
-                    } else {
-                        requestMessage.path("@assertThat(matchesPath(" + path.getKey() + "))@");
-                    }
                     requestMessage.method(org.springframework.http.HttpMethod.valueOf(operation.getKey().name()));
 
                     if (operation.getValue().getParameters() != null) {
@@ -133,6 +119,11 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                                 .filter(p -> p instanceof HeaderParameter)
                                 .filter(Parameter::getRequired)
                                 .forEach(p -> requestMessage.setHeader(p.getName(), getMode().equals(GeneratorMode.CLIENT) ? createRandomValueExpression(((HeaderParameter) p).getItems(), swagger.getDefinitions(), false) : createValidationExpression(((HeaderParameter) p).getItems(), swagger.getDefinitions(), false)));
+
+                        operation.getValue().getParameters().stream()
+                                .filter(p -> p instanceof PathParameter)
+                                .filter(Parameter::getRequired)
+                                .forEach(p -> requestMessage.setHeader(p.getName(), getMode().equals(GeneratorMode.CLIENT) ? createRandomValueExpression((PathParameter) p) : createValidationExpression((PathParameter) p)));
 
                         operation.getValue().getParameters().stream()
                                 .filter(param -> param instanceof QueryParameter)

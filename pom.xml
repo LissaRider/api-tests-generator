@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>generator-maven-plugin</artifactId>
-  <groupId>com.consol.citrus</groupId>
+  <groupId>ru.lanit.generator</groupId>
   <version>2.1.3</version>
   <packaging>maven-plugin</packaging>
   <name>Citrus :: Tools :: Maven :: Plugin</name>

@@ -37,7 +37,7 @@ public class MessageCodeProvider {
                     .filter(entry -> !entry.getKey().startsWith(MessageHeaders.PREFIX))
                     .forEach(entry -> code.add(
                             ".header($S, $S)\n",
-                            "{" + entry.getKey() + "}",
+                            entry.getKey(),
                             Optional.ofNullable(entry.getValue()).map(Object::toString).orElse("")));
         }
     }

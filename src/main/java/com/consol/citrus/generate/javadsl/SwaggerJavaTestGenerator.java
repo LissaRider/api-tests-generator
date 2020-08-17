@@ -123,7 +123,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                         operation.getValue().getParameters().stream()
                                 .filter(p -> p instanceof PathParameter)
                                 .filter(Parameter::getRequired)
-                                .forEach(p -> requestMessage.setHeader(p.getName(), getMode().equals(GeneratorMode.CLIENT) ? createRandomValueExpression((PathParameter) p) : createValidationExpression((PathParameter) p)));
+                                .forEach(p -> requestMessage.setHeader("{" + p.getName() + "}", getMode().equals(GeneratorMode.CLIENT) ? createRandomValueExpression((PathParameter) p) : createValidationExpression((PathParameter) p)));
 
                         operation.getValue().getParameters().stream()
                                 .filter(param -> param instanceof QueryParameter)

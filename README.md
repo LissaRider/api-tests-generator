@@ -30,7 +30,7 @@ Maven - 3.3 и выше
                 </executions>
                 <configuration>
                     <framework>testng</framework>
-                    <isCoverage>true</isCoverage>
+                    <isCoverage>false</isCoverage>
                     <buildDirectory>${project.basedir}/src/test</buildDirectory>
                     <tests>
                         <test>

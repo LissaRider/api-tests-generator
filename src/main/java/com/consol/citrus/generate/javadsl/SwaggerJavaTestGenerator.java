@@ -182,7 +182,9 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
         }
 
         if (model instanceof ArrayModel) {
+            payload.append("[");
             payload.append(createOutboundPayload(((ArrayModel) model).getItems(), definitions));
+            payload.append("]");
         } else {
             payload.append("{");
 

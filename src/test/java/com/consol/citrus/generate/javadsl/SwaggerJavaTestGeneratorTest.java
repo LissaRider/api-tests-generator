@@ -39,10 +39,10 @@ public class SwaggerJavaTestGeneratorTest {
 
     private final CleanupUtils cleanupUtils = new CleanupUtils();
 
-//    @AfterMethod
-//    public void cleanUp(){
-//        cleanupUtils.deleteFiles(testDir, Collections.singleton("UserLogin*"));
-//    }
+    @AfterMethod
+    public void cleanUp(){
+        cleanupUtils.deleteFiles(testDir, Collections.singleton("UserLogin*"));
+    }
 
     @Test
     public void testCreateTestAsClient() throws IOException {

@@ -1,4 +1,5 @@
 # generator-maven-plugin
+version 2.1.4 only positive test cases
 
 generator-maven-plugin - это генератор API тестов на основе OAS 2 (Swagger)
 с использованием Citrus framework.
@@ -18,7 +19,7 @@ Maven - 3.3 и выше
             <plugin>
                 <groupId>ru.lanit.generator</groupId>
                 <artifactId>generator-maven-plugin</artifactId>
-                <version>2.1.3</version>
+                <version>2.1.4</version>
                 <executions>
                     <execution>
                         <id>generate-tests</id>

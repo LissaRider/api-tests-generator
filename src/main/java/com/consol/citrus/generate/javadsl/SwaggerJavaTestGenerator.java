@@ -101,11 +101,12 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
         for (Map.Entry<String, Path> path : swagger.getPaths().entrySet()) {
             for (Map.Entry<HttpMethod, Operation> operation : path.getValue().getOperationMap().entrySet()) {
-                for (Map.Entry<String, Response> pair : operation.getValue().getResponses().entrySet()) {
-                    String code = pair.getKey();
+                Map<String, Response> responses = operation.getValue().getResponses();
+
+                if (responses.containsKey("200") || responses.containsKey("default")) {
 
                     // Now generate it
-                    withName(namePrefix + operation.getValue().getOperationId() + "_" + code + nameSuffix);
+                    withName(namePrefix + operation.getValue().getOperationId()  + nameSuffix);
 
                     HttpMessage requestMessage = new HttpMessage();
 
@@ -139,23 +140,13 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                     withRequest(requestMessage);
 
                     HttpMessage responseMessage = new HttpMessage();
-                    if (operation.getValue().getResponses() != null) {
-
-                        Response response = pair.getValue();
+                        Response response = operation.getValue().getResponses().get("200");
+                        if (response == null) {
+                            response = operation.getValue().getResponses().get("default");
+                        }
 
                         if (response != null) {
-                            if (code.equalsIgnoreCase("default")) {
-                                responseMessage.status(HttpStatus.OK);
-                            }
-                            else {
-                                try {
-                                    int status = Integer.parseInt(code);
-                                    responseMessage.status(HttpStatus.valueOf(status));
-                                } catch (NumberFormatException e) {
-                                    responseMessage.status(HttpStatus.OK);
-                                    log.warn("Cannot create new test case for status code: '" + code + "' Created by default");
-                                }
-                            }
+                            responseMessage.status(HttpStatus.OK);
 
                             if (response.getHeaders() != null) {
                                 for (Map.Entry<String, Property> header : response.getHeaders().entrySet()) {
@@ -164,10 +155,9 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                             }
 
                             if (response.getSchema() != null) {
-                                responseMessage.setPayload(getMode().equals(GeneratorMode.CLIENT) ? createInboundPayload(response.getSchema(), swagger.getDefinitions()) : createOutboundPayload(response.getSchema(), swagger.getDefinitions()));
+                                responseMessage.setPayload(getMode().equals(GeneratorMode.CLIENT) ? createInboundPayload(response.getSchema(), swagger.getDefinitions()): createOutboundPayload(response.getSchema(), swagger.getDefinitions()));
                             }
                         }
-                    }
                     withResponse(responseMessage);
 
                     super.create();

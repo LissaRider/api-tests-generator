@@ -39,10 +39,10 @@ public class SwaggerJavaTestGeneratorTest {
 
     private final CleanupUtils cleanupUtils = new CleanupUtils();
 
-    @AfterMethod
-    public void cleanUp(){
-        cleanupUtils.deleteFiles(testDir, Collections.singleton("UserLogin*"));
-    }
+//    @AfterMethod
+//    public void cleanUp(){
+//        cleanupUtils.deleteFiles(testDir, Collections.singleton("UserLogin*"));
+//    }
 
     @Test
     public void testCreateTestAsClient() throws IOException {
@@ -58,10 +58,10 @@ public class SwaggerJavaTestGeneratorTest {
 
         generator.create();
 
-        verifyTest("UserLoginClient_createUser_default_IT");
-        verifyTest("UserLoginClient_loginUser_200_IT");
-        verifyTest("UserLoginClient_logoutUser_default_IT");
-        verifyTest("UserLoginClient_getUserByName_200_IT");
+        verifyTest("UserLoginClient_createUser_IT");
+        verifyTest("UserLoginClient_loginUser_IT");
+        verifyTest("UserLoginClient_logoutUser_IT");
+        verifyTest("UserLoginClient_getUserByName_IT");
     }
 
     @Test
@@ -78,10 +78,10 @@ public class SwaggerJavaTestGeneratorTest {
 
         generator.create();
 
-        verifyTest("UserLoginService_createUser_default_IT");
-        verifyTest("UserLoginService_loginUser_200_IT");
-        verifyTest("UserLoginService_logoutUser_default_IT");
-        verifyTest("UserLoginService_getUserByName_200_IT");
+        verifyTest("UserLoginService_createUser_IT");
+        verifyTest("UserLoginService_loginUser_IT");
+        verifyTest("UserLoginService_logoutUser_IT");
+        verifyTest("UserLoginService_getUserByName_IT");
     }
 
     private void verifyTest(String name) throws IOException {

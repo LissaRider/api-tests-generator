@@ -372,19 +372,20 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
         StringBuilder payload = new StringBuilder();
         if (property instanceof RefProperty) {
             Model model = definitions.get(((RefProperty) property).getSimpleRef());
-            payload.append("{");
+//            payload.append("{");
+            payload.append("\"@ignore@\"");
 
-            if (model.getProperties() != null) {
-                for (Map.Entry<String, Property> entry : model.getProperties().entrySet()) {
-                    payload.append("\"").append(entry.getKey()).append("\": ").append(createValidationExpression(entry.getValue(), definitions, quotes)).append(",");
-                }
-            }
+//            if (model.getProperties() != null) {
+//                for (Map.Entry<String, Property> entry : model.getProperties().entrySet()) {
+//                    payload.append("\"").append(entry.getKey()).append("\": ").append(createValidationExpression(entry.getValue(), definitions, quotes)).append(",");
+//                }
+//            }
+//
+//            if (payload.toString().endsWith(",")) {
+//                payload.replace(payload.length() - 1, payload.length(), "");
+//            }
 
-            if (payload.toString().endsWith(",")) {
-                payload.replace(payload.length() - 1, payload.length(), "");
-            }
-
-            payload.append("}");
+//            payload.append("}");
         } else if (property instanceof ArrayProperty) {
             if (quotes) {
                 payload.append("\"");

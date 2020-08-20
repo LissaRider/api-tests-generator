@@ -44,17 +44,7 @@ import io.swagger.models.parameters.HeaderParameter;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.PathParameter;
 import io.swagger.models.parameters.QueryParameter;
-import io.swagger.models.properties.ArrayProperty;
-import io.swagger.models.properties.BooleanProperty;
-import io.swagger.models.properties.DateProperty;
-import io.swagger.models.properties.DateTimeProperty;
-import io.swagger.models.properties.DoubleProperty;
-import io.swagger.models.properties.FloatProperty;
-import io.swagger.models.properties.IntegerProperty;
-import io.swagger.models.properties.LongProperty;
-import io.swagger.models.properties.Property;
-import io.swagger.models.properties.RefProperty;
-import io.swagger.models.properties.StringProperty;
+import io.swagger.models.properties.*;
 import io.swagger.parser.SwaggerParser;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.http.HttpStatus;
@@ -67,6 +57,7 @@ import org.springframework.util.StringUtils;
  * @since 2.7.4
  */
 public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<SwaggerJavaTestGenerator> implements SwaggerTestGenerator<SwaggerJavaTestGenerator> {
+    private int cycle;
 
     private String swaggerResource;
 
@@ -277,6 +268,8 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
             payload.append("citrus:randomNumber(10)");
         } else if (property instanceof FloatProperty || property instanceof DoubleProperty) {
             payload.append("citrus:randomNumber(10)");
+        } else if (property instanceof DecimalProperty) {
+            payload.append("citrus:randomNumber(10)");
         } else if (property instanceof BooleanProperty) {
             payload.append("citrus:randomEnumValue('true', 'false')");
         } else {
@@ -371,21 +364,26 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
     private String createValidationExpression(Property property, Map<String, Model> definitions, boolean quotes) {
         StringBuilder payload = new StringBuilder();
         if (property instanceof RefProperty) {
-            Model model = definitions.get(((RefProperty) property).getSimpleRef());
-//            payload.append("{");
-            payload.append("\"@ignore@\"");
+            if (cycle > 0) {
+                cycle = 0;
+                payload.append("\"@ignore@\"");
 
-//            if (model.getProperties() != null) {
-//                for (Map.Entry<String, Property> entry : model.getProperties().entrySet()) {
-//                    payload.append("\"").append(entry.getKey()).append("\": ").append(createValidationExpression(entry.getValue(), definitions, quotes)).append(",");
-//                }
-//            }
-//
-//            if (payload.toString().endsWith(",")) {
-//                payload.replace(payload.length() - 1, payload.length(), "");
-//            }
+            } else {
+                Model model = definitions.get(((RefProperty) property).getSimpleRef());
+                payload.append("{");
+                if (model.getProperties() != null) {
+                    for (Map.Entry<String, Property> entry : model.getProperties().entrySet()) {
+                        cycle++;
+                        payload.append("\"").append(entry.getKey()).append("\": ").append(createValidationExpression(entry.getValue(), definitions, quotes)).append(",");
+                    }
+                }
 
-//            payload.append("}");
+                if (payload.toString().endsWith(",")) {
+                    payload.replace(payload.length() - 1, payload.length(), "");
+                }
+
+                payload.append("}");
+            }
         } else if (property instanceof ArrayProperty) {
             if (quotes) {
                 payload.append("\"");
@@ -401,9 +399,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                 payload.append("\"");
             }
 
-            if (StringUtils.hasText(((StringProperty) property).getPattern())) {
-                payload.append("@matches(").append(((StringProperty) property).getPattern()).append(")@");
-            } else if (!CollectionUtils.isEmpty(((StringProperty) property).getEnum())) {
+            if (!CollectionUtils.isEmpty(((StringProperty) property).getEnum())) {
                 payload.append("@matches(").append(((StringProperty) property).getEnum().stream().collect(Collectors.joining("|"))).append(")@");
             } else {
                 payload.append("@notEmpty()@");

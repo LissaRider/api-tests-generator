@@ -92,6 +92,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
         for (Map.Entry<String, Path> path : swagger.getPaths().entrySet()) {
             for (Map.Entry<HttpMethod, Operation> operation : path.getValue().getOperationMap().entrySet()) {
+                cycle = 0;
                 Map<String, Response> responses = operation.getValue().getResponses();
 
                 if (responses.containsKey("200") || responses.containsKey("default")) {

@@ -39,10 +39,10 @@ public class SwaggerJavaTestGeneratorTest {
 
     private final CleanupUtils cleanupUtils = new CleanupUtils();
 
-    @AfterMethod
-    public void cleanUp(){
-        cleanupUtils.deleteFiles(testDir, Collections.singleton("UserLogin*"));
-    }
+//    @AfterMethod
+//    public void cleanUp(){
+//        cleanupUtils.deleteFiles(testDir, Collections.singleton("UserLogin*"));
+//    }
 
     @Test
     public void testCreateTestAsClient() throws IOException {
@@ -54,7 +54,7 @@ public class SwaggerJavaTestGeneratorTest {
                 .withFramework(UnitFramework.TESTNG);
 
         generator.withNamePrefix("UserLoginClient_");
-        generator.withSpec("com/consol/citrus/swagger/user-login-api.json");
+        generator.withSpec("com/consol/citrus/swagger/statement.json");
 
         generator.create();
 

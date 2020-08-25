@@ -17,6 +17,7 @@
 package com.consol.citrus.generate.javadsl;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -57,7 +58,8 @@ import org.springframework.util.StringUtils;
  * @since 2.7.4
  */
 public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<SwaggerJavaTestGenerator> implements SwaggerTestGenerator<SwaggerJavaTestGenerator> {
-    private int cycle;
+    private Map<String, Integer> control;
+    private int cycleReceive;
 
     private String swaggerResource;
 
@@ -92,7 +94,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
         for (Map.Entry<String, Path> path : swagger.getPaths().entrySet()) {
             for (Map.Entry<HttpMethod, Operation> operation : path.getValue().getOperationMap().entrySet()) {
-                cycle = 0;
+
                 Map<String, Response> responses = operation.getValue().getResponses();
 
                 if (responses.containsKey("200") || responses.containsKey("default")) {
@@ -107,11 +109,18 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
                     requestMessage.method(org.springframework.http.HttpMethod.valueOf(operation.getKey().name()));
 
+
                     if (operation.getValue().getParameters() != null) {
+//                        operation.getValue().getParameters().stream()
+//                                .filter(p -> p instanceof HeaderParameter)
+//                                .filter(Parameter::getRequired)
+//                                .forEach(p -> requestMessage.setHeader(p.getName(), getMode().equals(GeneratorMode.CLIENT) ? createRandomValueExpression(((HeaderParameter) p).getItems(), swagger.getDefinitions(), false) : createValidationExpression(((HeaderParameter) p).getItems(), swagger.getDefinitions(), false)));
+
                         operation.getValue().getParameters().stream()
                                 .filter(p -> p instanceof HeaderParameter)
                                 .filter(Parameter::getRequired)
-                                .forEach(p -> requestMessage.setHeader(p.getName(), getMode().equals(GeneratorMode.CLIENT) ? createRandomValueExpression(((HeaderParameter) p).getItems(), swagger.getDefinitions(), false) : createValidationExpression(((HeaderParameter) p).getItems(), swagger.getDefinitions(), false)));
+                                .forEach(p -> requestMessage.setHeader(p.getName(), getMode().equals(GeneratorMode.CLIENT) ? createRandomValueExpression((HeaderParameter) p) : createValidationExpression((HeaderParameter) p)));
+
 
                         operation.getValue().getParameters().stream()
                                 .filter(p -> p instanceof PathParameter)
@@ -182,6 +191,10 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
             if (model.getProperties() != null) {
                 for (Map.Entry<String, Property> entry : model.getProperties().entrySet()) {
+                    control = new HashMap<>();
+                    if (entry.getValue() instanceof RefProperty) {
+                        control.put(((RefProperty) entry.getValue()).getSimpleRef(), 1);
+                    }
                     payload.append("\"").append(entry.getKey()).append("\": ").append(createOutboundPayload(entry.getValue(), definitions)).append(",");
                 }
             }
@@ -206,6 +219,19 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
         StringBuilder payload = new StringBuilder();
 
         if (property instanceof RefProperty) {
+            String key = ((RefProperty) property).getSimpleRef();
+
+            if (control.containsKey(key)) {
+                if (control.get(key) > 2) {
+                    payload.append("{}");
+                    return payload.toString();
+                }
+                int i = control.get(key) + 1;
+                control.put(key, i);
+            } else {
+                control.put(key, 1);
+            }
+
             Model model = definitions.get(((RefProperty) property).getSimpleRef());
             payload.append("{");
 
@@ -292,6 +318,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
      */
     private String createInboundPayload(Property property, Map<String, Model> definitions) {
         StringBuilder payload = new StringBuilder();
+        cycleReceive = 0;
 
         if (property instanceof RefProperty) {
             Model model = definitions.get(((RefProperty) property).getSimpleRef());
@@ -365,8 +392,8 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
     private String createValidationExpression(Property property, Map<String, Model> definitions, boolean quotes) {
         StringBuilder payload = new StringBuilder();
         if (property instanceof RefProperty) {
-            if (cycle > 0) {
-                cycle = 0;
+            if (cycleReceive > 0) {
+                cycleReceive = 0;
                 payload.append("\"@ignore@\"");
 
             } else {
@@ -374,7 +401,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                 payload.append("{");
                 if (model.getProperties() != null) {
                     for (Map.Entry<String, Property> entry : model.getProperties().entrySet()) {
-                        cycle++;
+                        cycleReceive++;
                         payload.append("\"").append(entry.getKey()).append("\": ").append(createValidationExpression(entry.getValue(), definitions, quotes)).append(",");
                     }
                 }
@@ -508,19 +535,26 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
      * @return
      */
     private String createRandomValueExpression(AbstractSerializableParameter parameter) {
-        switch (parameter.getType()) {
+        String type = parameter.getType();
+        String format = parameter.getFormat();
+        if (type.equals("array")) {
+            type = parameter.getItems().getType();
+            format = parameter.getItems().getFormat();
+        }
+
+        switch (type) {
             case "integer":
                 return "citrus:randomNumber(10)";
             case "string":
-                if (parameter.getFormat() != null && parameter.getFormat().equals("date")) {
+                if (parameter.getFormat() != null && format.equals("date")) {
                     return "\"citrus:currentDate('yyyy-MM-dd')\"";
-                } else if (parameter.getFormat() != null && parameter.getFormat().equals("date-time")) {
+                } else if (parameter.getFormat() != null && format.equals("date-time")) {
                     return "\"citrus:currentDate('yyyy-MM-dd'T'hh:mm:ss')\"";
                 } else if (StringUtils.hasText(parameter.getPattern())) {
                     return "\"citrus:randomValue(" + parameter.getPattern() + ")\"";
                 } else if (!CollectionUtils.isEmpty(parameter.getEnum())) {
                     return "\"citrus:randomEnumValue(" + (parameter.getEnum().stream().collect(Collectors.joining(","))) + ")\"";
-                } else if (Optional.ofNullable(parameter.getFormat()).orElse("").equalsIgnoreCase("uuid")){
+                } else if (Optional.ofNullable(format).orElse("").equalsIgnoreCase("uuid")){
                     return "citrus:randomUUID()";
                 } else {
                     return "citrus:randomString(10)";

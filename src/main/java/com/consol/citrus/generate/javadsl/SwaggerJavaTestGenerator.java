@@ -221,15 +221,17 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
         if (property instanceof RefProperty) {
             String key = ((RefProperty) property).getSimpleRef();
 
-            if (control.containsKey(key)) {
-                if (control.get(key) > 2) {
-                    payload.append("{}");
-                    return payload.toString();
+            if (control != null) {
+                if (control.containsKey(key)) {
+                    if (control.get(key) > 2) {
+                        payload.append("{}");
+                        return payload.toString();
+                    }
+                    int i = control.get(key) + 1;
+                    control.put(key, i);
+                } else {
+                    control.put(key, 1);
                 }
-                int i = control.get(key) + 1;
-                control.put(key, i);
-            } else {
-                control.put(key, 1);
             }
 
             Model model = definitions.get(((RefProperty) property).getSimpleRef());

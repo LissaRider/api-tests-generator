@@ -547,6 +547,11 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
      * @return
      */
     private String createRandomValueExpression(AbstractSerializableParameter parameter) {
+        String quotes = "\"";
+        if (parameter instanceof QueryParameter) {
+            quotes = "";
+        }
+
         String type = parameter.getType();
         String format = parameter.getFormat();
         if (type.equals("array")) {
@@ -559,13 +564,13 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                 return "citrus:randomNumber(10)";
             case "string":
                 if (parameter.getFormat() != null && format.equals("date")) {
-                    return "\"citrus:currentDate('yyyy-MM-dd')\"";
+                    return quotes + "citrus:currentDate('yyyy-MM-dd')" + quotes;
                 } else if (parameter.getFormat() != null && format.equals("date-time")) {
-                    return "\"citrus:currentDate('yyyy-MM-dd'T'hh:mm:ss')\"";
+                    return quotes + "citrus:currentDate('yyyy-MM-dd'T'hh:mm:ss')" + quotes;
                 } else if (StringUtils.hasText(parameter.getPattern())) {
-                    return "\"citrus:randomValue(" + parameter.getPattern() + ")\"";
+                    return quotes + "citrus:randomValue(" + parameter.getPattern() + ")" + quotes;
                 } else if (!CollectionUtils.isEmpty(parameter.getEnum())) {
-                    return "\"citrus:randomEnumValue(" + (parameter.getEnum().stream().collect(Collectors.joining(","))) + ")\"";
+                    return quotes + "citrus:randomEnumValue(" + (parameter.getEnum().stream().collect(Collectors.joining(","))) + ")" + quotes;
                 } else if (Optional.ofNullable(format).orElse("").equalsIgnoreCase("uuid")){
                     return "citrus:randomUUID()";
                 } else {

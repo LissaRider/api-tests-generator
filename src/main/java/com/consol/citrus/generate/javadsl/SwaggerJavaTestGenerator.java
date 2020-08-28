@@ -111,10 +111,6 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
 
                     if (operation.getValue().getParameters() != null) {
-//                        operation.getValue().getParameters().stream()
-//                                .filter(p -> p instanceof HeaderParameter)
-//                                .filter(Parameter::getRequired)
-//                                .forEach(p -> requestMessage.setHeader(p.getName(), getMode().equals(GeneratorMode.CLIENT) ? createRandomValueExpression(((HeaderParameter) p).getItems(), swagger.getDefinitions(), false) : createValidationExpression(((HeaderParameter) p).getItems(), swagger.getDefinitions(), false)));
 
                         operation.getValue().getParameters().stream()
                                 .filter(p -> p instanceof HeaderParameter)
@@ -224,7 +220,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
             if (control != null) {
                 if (control.containsKey(key)) {
                     if (control.get(key) > 2) {
-                        payload.append("{}");
+                        payload.append("\"\"");
                         return payload.toString();
                     }
                     int i = control.get(key) + 1;
@@ -338,9 +334,13 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
             payload.append("}");
         } else if (property instanceof ArrayProperty) {
-            payload.append("[");
-            payload.append(createValidationExpression(((ArrayProperty) property).getItems(), definitions, true));
-            payload.append("]");
+            if (((ArrayProperty) property).getItems() instanceof RefProperty) {
+                payload.append("[");
+                payload.append(createValidationExpression(((ArrayProperty) property).getItems(), definitions, true));
+                payload.append("]");
+            } else {
+                payload.append("\"@ignore@\"");
+            }
         } else {
             payload.append(createValidationExpression(property, definitions, false));
         }
@@ -397,7 +397,6 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
             if (cycleReceive > 0) {
                 cycleReceive = 0;
                 payload.append("\"@ignore@\"");
-
             } else {
                 Model model = definitions.get(((RefProperty) property).getSimpleRef());
                 payload.append("{");
@@ -418,7 +417,6 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
             if (quotes) {
                 payload.append("\"");
             }
-
             payload.append("@ignore@");
 
             if (quotes) {

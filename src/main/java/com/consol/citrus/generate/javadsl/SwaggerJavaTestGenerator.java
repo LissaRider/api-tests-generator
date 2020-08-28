@@ -248,6 +248,10 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
             payload.append("[");
             payload.append(createRandomValueExpression(((ArrayProperty) property).getItems(), definitions, true));
             payload.append("]");
+        } else if (property instanceof MapProperty) {
+            payload.append("[");
+            payload.append(createRandomValueExpression(((MapProperty) property).getAdditionalProperties(), definitions, true));
+            payload.append("]");
         } else {
             payload.append(createRandomValueExpression(property, definitions, true));
         }
@@ -341,6 +345,14 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
             } else {
                 payload.append("\"@ignore@\"");
             }
+        } else if (property instanceof MapProperty) {
+            if (((MapProperty) property).getAdditionalProperties() instanceof RefProperty) {
+                payload.append("[");
+                payload.append(createValidationExpression(((MapProperty) property).getAdditionalProperties(), definitions, true));
+                payload.append("]");
+            } else {
+                payload.append("\"@ignore@\"");
+            }
         } else {
             payload.append(createValidationExpression(property, definitions, false));
         }
@@ -413,7 +425,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
                 payload.append("}");
             }
-        } else if (property instanceof ArrayProperty) {
+        } else if (property instanceof ArrayProperty || property instanceof MapProperty) {
             if (quotes) {
                 payload.append("\"");
             }

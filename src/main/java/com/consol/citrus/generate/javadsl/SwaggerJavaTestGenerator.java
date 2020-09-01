@@ -30,14 +30,7 @@ import com.consol.citrus.util.FileUtils;
 import com.consol.citrus.variable.dictionary.json.JsonPathMappingDataDictionary;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
-import io.swagger.models.ArrayModel;
-import io.swagger.models.HttpMethod;
-import io.swagger.models.Model;
-import io.swagger.models.Operation;
-import io.swagger.models.Path;
-import io.swagger.models.RefModel;
-import io.swagger.models.Response;
-import io.swagger.models.Swagger;
+import io.swagger.models.*;
 import io.swagger.models.parameters.AbstractSerializableParameter;
 import io.swagger.models.parameters.BodyParameter;
 import io.swagger.models.parameters.HeaderParameter;
@@ -57,8 +50,8 @@ import org.springframework.util.StringUtils;
  * @since 2.7.4
  */
 public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<SwaggerJavaTestGenerator> implements SwaggerTestGenerator<SwaggerJavaTestGenerator> {
-    private Map<String, Integer> control;
-    private int cycleReceive;
+    /** Loop counter for recursion */
+    private Map<String, Integer> control = new HashMap<>();
 
     private String swaggerResource;
 
@@ -131,7 +124,8 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                                 .filter(p -> p instanceof BodyParameter)
                                 .filter(Parameter::getRequired)
                                 .findFirst()
-                                .ifPresent(p -> requestMessage.setPayload(getMode().equals(GeneratorMode.CLIENT) ? createOutboundPayload(((BodyParameter) p).getSchema(), swagger.getDefinitions()) : createInboundPayload(((BodyParameter) p).getSchema(), swagger.getDefinitions())));
+                                .ifPresent(p -> {control = new HashMap<>();
+                                                requestMessage.setPayload(getMode().equals(GeneratorMode.CLIENT) ? createOutboundPayload(((BodyParameter) p).getSchema(), swagger.getDefinitions()) : createInboundPayload(((BodyParameter) p).getSchema(), swagger.getDefinitions()));});
                     }
                     withRequest(requestMessage);
 
@@ -151,6 +145,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                             }
 
                             if (response.getSchema() != null) {
+                                control = new HashMap<>();
                                 responseMessage.setPayload(getMode().equals(GeneratorMode.CLIENT) ? createInboundPayload(response.getSchema(), swagger.getDefinitions()): createOutboundPayload(response.getSchema(), swagger.getDefinitions()));
                             }
                         }
@@ -183,13 +178,8 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
             payload.append("]");
         } else {
             payload.append("{");
-
             if (model.getProperties() != null) {
                 for (Map.Entry<String, Property> entry : model.getProperties().entrySet()) {
-                    control = new HashMap<>();
-                    if (entry.getValue() instanceof RefProperty) {
-                        control.put(((RefProperty) entry.getValue()).getSimpleRef(), 1);
-                    }
                     payload.append("\"").append(entry.getKey()).append("\": ").append(createOutboundPayload(entry.getValue(), definitions)).append(",");
                 }
             }
@@ -212,45 +202,51 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
      */
     private String createOutboundPayload(Property property, Map<String, Model> definitions) {
         StringBuilder payload = new StringBuilder();
+        boolean permit = true;
 
         if (property instanceof RefProperty) {
-            String key = ((RefProperty) property).getSimpleRef();
+            String ref = ((RefProperty) property).getSimpleRef();
 
-            if (control != null) {
-                if (control.containsKey(key)) {
-                    if (control.get(key) > 2) {
-                        payload.append("\"\"");
-                        return payload.toString();
-                    }
-                    int i = control.get(key) + 1;
-                    control.put(key, i);
+
+            if (control.containsKey(ref)) {
+                if (control.get(ref) > 1) {
+                    permit = false;
+                    payload.append("null");
                 } else {
-                    control.put(key, 1);
+                    control.put(ref, control.get(ref) + 1);
                 }
+            } else {
+                control.put(ref, 1);
             }
 
-            Model model = definitions.get(((RefProperty) property).getSimpleRef());
-            payload.append("{");
+            if (permit) {
+                Model model = definitions.get(((RefProperty) property).getSimpleRef());
+                payload.append("{");
 
-            if (model.getProperties() != null) {
-                for (Map.Entry<String, Property> entry : model.getProperties().entrySet()) {
-                    payload.append("\"").append(entry.getKey()).append("\": ").append(createRandomValueExpression(entry.getValue(), definitions, true)).append(",");
+                if (model.getProperties() != null) {
+                    for (Map.Entry<String, Property> entry : model.getProperties().entrySet()) {
+                        payload.append("\"").append(entry.getKey()).append("\": ").append(createRandomValueExpression(entry.getValue(), definitions, true)).append(",");
+                    }
                 }
-            }
+                if (control != null) {
+                    control.put(ref, control.get(ref) - 1);
+                }
 
-            if (payload.toString().endsWith(",")) {
-                payload.replace(payload.length() - 1, payload.length(), "");
-            }
+                if (payload.toString().endsWith(",")) {
+                    payload.replace(payload.length() - 1, payload.length(), "");
+                }
 
-            payload.append("}");
+                payload.append("}");
+            }
         } else if (property instanceof ArrayProperty) {
             payload.append("[");
             payload.append(createRandomValueExpression(((ArrayProperty) property).getItems(), definitions, true));
             payload.append("]");
         } else if (property instanceof MapProperty) {
-            payload.append("[");
+            payload.append("{");
+            payload.append("citrus:randomString(10): ");
             payload.append(createRandomValueExpression(((MapProperty) property).getAdditionalProperties(), definitions, true));
-            payload.append("]");
+            payload.append("}");
         } else {
             payload.append(createRandomValueExpression(property, definitions, true));
         }
@@ -319,7 +315,6 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
      */
     private String createInboundPayload(Property property, Map<String, Model> definitions) {
         StringBuilder payload = new StringBuilder();
-        cycleReceive = 0;
 
         if (property instanceof RefProperty) {
             Model model = definitions.get(((RefProperty) property).getSimpleRef());
@@ -398,19 +393,32 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
      */
     private String createValidationExpression(Property property, Map<String, Model> definitions, boolean quotes) {
         StringBuilder payload = new StringBuilder();
+        boolean permit = true;
+
         if (property instanceof RefProperty) {
-            if (cycleReceive > 0) {
-                cycleReceive = 0;
-                payload.append("\"@ignore@\"");
+            String ref = ((RefProperty) property).getSimpleRef();
+
+            if (control.containsKey(ref)) {
+                if (control.get(ref) > 1) {
+                    permit = false;
+                    payload.append("\"@ignore@\"");
+                } else {
+                    control.put(ref, control.get(ref) + 1);
+                }
             } else {
+                control.put(ref, 1);
+            }
+
+            if (permit) {
                 Model model = definitions.get(((RefProperty) property).getSimpleRef());
                 payload.append("{");
                 if (model.getProperties() != null) {
                     for (Map.Entry<String, Property> entry : model.getProperties().entrySet()) {
-                        cycleReceive++;
                         payload.append("\"").append(entry.getKey()).append("\": ").append(createValidationExpression(entry.getValue(), definitions, quotes)).append(",");
                     }
                 }
+
+                control.put(ref, control.get(ref) - 1);
 
                 if (payload.toString().endsWith(",")) {
                     payload.replace(payload.length() - 1, payload.length(), "");

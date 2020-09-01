@@ -18,7 +18,6 @@ package com.consol.citrus.generate.javadsl;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -552,7 +551,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
      */
     private String createRandomValueExpression(AbstractSerializableParameter parameter) {
         String quotes = "\"";
-        if (parameter instanceof QueryParameter) {
+        if (parameter instanceof QueryParameter || parameter instanceof PathParameter) {
             quotes = "";
         }
 

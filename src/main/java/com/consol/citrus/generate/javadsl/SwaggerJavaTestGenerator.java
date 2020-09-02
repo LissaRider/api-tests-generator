@@ -81,7 +81,16 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
         }
 
         if (!StringUtils.hasText(namePrefix)) {
-            withNamePrefix(StringUtils.trimAllWhitespace(Optional.ofNullable(swagger.getInfo().getTitle()).orElse("Swagger")) + "_");
+            String title = swagger.getInfo().getTitle();
+            if (title != null) {
+                title = title.replaceAll("[^A-Za-z0-9]", "");
+                if (title.matches("^[A-Za-z]+")) {
+                    title = title.substring(0,1).toUpperCase() + title.substring(1);
+                } else {
+                    title = null;
+                }
+            }
+            withNamePrefix(StringUtils.trimAllWhitespace(Optional.ofNullable(title).orElse("Swagger")) + "_");
         }
 
         for (Map.Entry<String, Path> path : swagger.getPaths().entrySet()) {

@@ -211,7 +211,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
             if (control.containsKey(ref)) {
                 if (control.get(ref) > 1) {
                     permit = false;
-                    payload.append("null");
+                    payload.append("{}");
                 } else {
                     control.put(ref, control.get(ref) + 1);
                 }

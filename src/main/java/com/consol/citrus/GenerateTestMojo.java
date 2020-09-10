@@ -115,6 +115,7 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
         }
 
         HttpCodeProvider.setCoverage(isCoverage);
+        SwaggerJavaTestGenerator.setCoverage(isCoverage);
 
         for (TestConfiguration test : getTests()) {
             if (test.getXsd() != null) {

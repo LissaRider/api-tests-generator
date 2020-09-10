@@ -18,6 +18,7 @@ package com.consol.citrus.generate.javadsl;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -53,6 +54,8 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
     /** Loop counter for recursion */
     private Map<String, Integer> control = new HashMap<>();
 
+    private static boolean isCoverage;
+
     private String swaggerResource;
 
     private String contextPath;
@@ -63,6 +66,10 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
     private JsonPathMappingDataDictionary inboundDataDictionary = new JsonPathMappingDataDictionary();
     private JsonPathMappingDataDictionary outboundDataDictionary = new JsonPathMappingDataDictionary();
+
+    public static void setCoverage(boolean isCoverage) {
+        SwaggerJavaTestGenerator.isCoverage = isCoverage;
+    }
 
     @Override
     protected JavaFile.Builder createJavaFileBuilder(TypeSpec.Builder testTypeBuilder) {
@@ -105,8 +112,25 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
                     HttpMessage requestMessage = new HttpMessage();
 
-                    String randomizedPath = path.getKey();
-                    requestMessage.path(Optional.ofNullable(contextPath).orElse("") + randomizedPath);
+                    if (getMode().equals(GeneratorMode.CLIENT) && !isCoverage) {
+                        String randomizedPath = path.getKey();
+                        if (operation.getValue().getParameters() != null) {
+                            List<PathParameter> pathParams = operation.getValue().getParameters().stream()
+                                    .filter(p -> p instanceof PathParameter)
+                                    .map(PathParameter.class::cast)
+                                    .collect(Collectors.toList());
+
+                            for (PathParameter parameter : pathParams) {
+                                randomizedPath = randomizedPath.replaceAll("\\{" + parameter.getName() + "\\}", createRandomValueExpression(parameter));
+                            }
+                        }
+
+                        requestMessage.path(Optional.ofNullable(contextPath).orElse("") + Optional.ofNullable(swagger.getBasePath()).filter(basePath -> !basePath.equals("/")).orElse("") + randomizedPath);
+                    } else if (getMode().equals(GeneratorMode.CLIENT) && isCoverage) {
+                        requestMessage.path(Optional.ofNullable(contextPath).orElse("") + Optional.ofNullable(swagger.getBasePath()).filter(basePath -> !basePath.equals("/")).orElse("") + path.getKey());
+                    } else {
+                        requestMessage.path("@assertThat(matchesPath(" + path.getKey() + "))@");
+                    }
 
                     requestMessage.method(org.springframework.http.HttpMethod.valueOf(operation.getKey().name()));
 
@@ -118,11 +142,12 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                                 .filter(Parameter::getRequired)
                                 .forEach(p -> requestMessage.setHeader(p.getName(), getMode().equals(GeneratorMode.CLIENT) ? createRandomValueExpression((HeaderParameter) p) : createValidationExpression((HeaderParameter) p)));
 
-
-                        operation.getValue().getParameters().stream()
-                                .filter(p -> p instanceof PathParameter)
-                                .filter(Parameter::getRequired)
-                                .forEach(p -> requestMessage.setHeader("{" + p.getName() + "}", getMode().equals(GeneratorMode.CLIENT) ? createRandomValueExpression((PathParameter) p) : createValidationExpression((PathParameter) p)));
+                        if (isCoverage) {
+                            operation.getValue().getParameters().stream()
+                                    .filter(p -> p instanceof PathParameter)
+                                    .filter(Parameter::getRequired)
+                                    .forEach(p -> requestMessage.setHeader("{" + p.getName() + "}", getMode().equals(GeneratorMode.CLIENT) ? createRandomValueExpression((PathParameter) p) : createValidationExpression((PathParameter) p)));
+                        }
 
                         operation.getValue().getParameters().stream()
                                 .filter(param -> param instanceof QueryParameter)
@@ -298,11 +323,9 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                 payload.append("\"");
             }
         } else if (property instanceof IntegerProperty || property instanceof LongProperty) {
-            payload.append("citrus:randomNumber(10)");
-        } else if (property instanceof FloatProperty || property instanceof DoubleProperty) {
-            payload.append("citrus:randomNumber(10)");
+            payload.append("citrus:randomNumber(9)");
         } else if (property instanceof DecimalProperty) {
-            payload.append("citrus:randomNumber(10)");
+            payload.append("citrus:randomNumber(9)");
         } else if (property instanceof BooleanProperty) {
             payload.append("citrus:randomEnumValue('true', 'false')");
         } else {
@@ -498,7 +521,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
             if (quotes) {
                 payload.append("\"");
             }
-        } else if (property instanceof FloatProperty || property instanceof DoubleProperty) {
+        } else if (property instanceof DecimalProperty) {
             if (quotes) {
                 payload.append("\"");
             }
@@ -541,6 +564,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
     private String createValidationExpression(AbstractSerializableParameter parameter) {
         switch (parameter.getType()) {
             case "integer":
+            case "number":
                 return "@isNumber()@";
             case "string":
                 if (parameter.getFormat() != null && parameter.getFormat().equals("date")) {
@@ -581,7 +605,8 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
         switch (type) {
             case "integer":
-                return "citrus:randomNumber(10)";
+            case "number":
+                return "citrus:randomNumber(9)";
             case "string":
                 if (parameter.getFormat() != null && format.equals("date")) {
                     return quotes + "citrus:currentDate('yyyy-MM-dd')" + quotes;

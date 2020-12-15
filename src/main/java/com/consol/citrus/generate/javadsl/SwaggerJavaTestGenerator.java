@@ -93,19 +93,9 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
                     HttpMessage requestMessage = new HttpMessage();
 
-                    if (!isCoverage) {
-                        String randomizedPath = path.getKey();
-
-                        requestMessage.path(Optional.ofNullable(contextPath).orElse("") + Optional
-                                .ofNullable(openAPI.getServers().get(0).getUrl())
-                                .filter(basePath -> !basePath.equals("/")).orElse("") + randomizedPath);
-                    } else if (isCoverage) {
-                        requestMessage.path(Optional.ofNullable(contextPath).orElse("") + Optional
-                                .ofNullable(openAPI.getServers().get(0).getUrl())
-                                .filter(basePath -> !basePath.equals("/")).orElse("") + path.getKey());
-                    } else {
-                        requestMessage.path("@assertThat(matchesPath(" + path.getKey() + "))@");
-                    }
+                    requestMessage.path(Optional.ofNullable(contextPath).orElse("") + Optional
+                            .ofNullable(openAPI.getServers().get(0).getUrl())
+                            .filter(basePath -> !basePath.equals("/")).orElse("") + path.getKey());
 
                     requestMessage.method(org.springframework.http.HttpMethod.valueOf(operation.getKey().name()));
 

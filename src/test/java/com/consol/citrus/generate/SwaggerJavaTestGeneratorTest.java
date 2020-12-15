@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.consol.citrus.generate.javadsl;
+package com.consol.citrus.generate;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +22,7 @@ import java.util.Collections;
 
 import com.consol.citrus.CitrusSettings;
 import com.consol.citrus.generate.UnitFramework;
+import com.consol.citrus.generate.javadsl.SwaggerJavaTestGenerator;
 import com.consol.citrus.util.FileUtils;
 import com.consol.citrus.utils.CleanupUtils;
 import org.springframework.core.io.FileSystemResource;
@@ -36,20 +37,20 @@ public class SwaggerJavaTestGeneratorTest {
 
     @AfterMethod
     public void cleanUp(){
-        //cleanupUtils.deleteFiles(testDir, Collections.singleton("UserLogin*"));
+        cleanupUtils.deleteFiles(testDir, Collections.singleton("UserLogin*"));
     }
 
     @Test
     public void testCreateTestAsClient() throws IOException {
         SwaggerJavaTestGenerator generator = new SwaggerJavaTestGenerator();
 
-        generator.withAuthor("Christoph")
+        generator.withAuthor("Unknown")
                 .withDescription("This is a sample test")
                 .usePackage("com.consol.citrus")
                 .withFramework(UnitFramework.TESTNG);
 
         generator.withNamePrefix("UserLoginClient_");
-        generator.withSpec("com/consol/citrus/swagger/petstore.json");
+        generator.withSpec("swagger/petstore.json");
 
         generator.create();
 
@@ -64,7 +65,7 @@ public class SwaggerJavaTestGeneratorTest {
         Assert.assertTrue(javaFile.exists());
 
         String javaContent = FileUtils.readToString(new FileSystemResource(javaFile));
-        Assert.assertTrue(javaContent.contains("@author Christoph"));
+        Assert.assertTrue(javaContent.contains("@author Unknown"));
         Assert.assertTrue(javaContent.contains("public class " + name));
         Assert.assertTrue(javaContent.contains("* This is a sample test"));
         Assert.assertTrue(javaContent.contains("package com.consol.citrus;"));

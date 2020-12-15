@@ -134,7 +134,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
                     if (requestBody != null) {
                         //TODO: Add JsonParser
-                        requestMessage.setPayload("{body}");
+                        requestMessage.setPayload("{requestBody}");
                     }
 
                     withRequest(requestMessage);
@@ -149,16 +149,19 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                     if (response != null) {
                         responseMessage.status(HttpStatus.OK);
 
-//                        if (response.getHeaders() != null) {
-//                            for (Map.Entry<String, Header> header : response.getHeaders().entrySet()) {
-//                                responseMessage.setHeader(header.getKey(), createValidationExpression(header.getValue(), swagger.getDefinitions(), false));
-//                            }
-//                        }
-//
-//                        if (response.getSchema() != null) {
+                        //TODO: Add validation method
+                        if (response.getHeaders() != null) {
+                            for (Map.Entry<String, Header> header : response.getHeaders().entrySet()) {
+                                responseMessage.setHeader(header.getKey(), "@notEmpty()@");
+                            }
+                        }
+
+                        //TODO: To implement validation method
+                        if (response.getContent() != null) {
+//                            response.getContent().get("application/json").getSchema();
 //                            control = new HashMap<>();
-//                            responseMessage.setPayload(createInboundPayload(response.getSchema(), swagger.getDefinitions()));
-//                        }
+                            responseMessage.setPayload("{responseBody}");
+                        }
                     }
                     withResponse(responseMessage);
 
@@ -171,15 +174,15 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
     }
 
-    /**
+    /** TODO: To implement method.
      * Create validation expression using functions according to parameter type and format.
-     * @param property
-     * @param definitions
-     * @param quotes
+     * property - Property.
+     * definitions - Map<String, Model>.
+     * quotes - boolean.
      * @return
      */
-//    private String createValidationExpression(Property property, Map<String, Model> definitions, boolean quotes) {
-//        StringBuilder payload = new StringBuilder();
+    private String createValidationExpression() {
+        StringBuilder payload = new StringBuilder();
 //        boolean permit = true;
 //
 //        if (property instanceof RefProperty) {
@@ -307,9 +310,9 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 //                payload.append("\"");
 //            }
 //        }
-//
-//        return payload.toString();
-//    }
+
+        return payload.toString();
+    }
 
     /**
      * Create validation expression using functions according to parameter type and format.

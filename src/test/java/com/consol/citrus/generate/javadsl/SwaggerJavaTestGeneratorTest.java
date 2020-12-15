@@ -36,7 +36,7 @@ public class SwaggerJavaTestGeneratorTest {
 
     @AfterMethod
     public void cleanUp(){
-        cleanupUtils.deleteFiles(testDir, Collections.singleton("UserLogin*"));
+        //cleanupUtils.deleteFiles(testDir, Collections.singleton("UserLogin*"));
     }
 
     @Test

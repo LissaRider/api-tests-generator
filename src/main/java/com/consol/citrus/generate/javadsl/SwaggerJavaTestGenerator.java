@@ -11,6 +11,7 @@ import com.squareup.javapoet.TypeSpec;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.*;
@@ -94,16 +95,6 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
                     if (!isCoverage) {
                         String randomizedPath = path.getKey();
-                        if (operation.getValue().getParameters() != null)  {
-                            List<PathParameter> pathParams = operation.getValue().getParameters().stream()
-                                    .filter(p -> p instanceof PathParameter)
-                                    .map(PathParameter.class::cast)
-                                    .collect(Collectors.toList());
-
-                            for (PathParameter parameter : pathParams) {
-                                randomizedPath = randomizedPath.replaceAll("\\{" + parameter.getName() + "\\}", "//TODO: Add header value");
-                            }
-                        }
 
                         requestMessage.path(Optional.ofNullable(contextPath).orElse("") + Optional
                                 .ofNullable(openAPI.getServers().get(0).getUrl())
@@ -124,29 +115,26 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                         operation.getValue().getParameters().stream()
                                 .filter(p -> p instanceof HeaderParameter)
                                 .filter(Parameter::getRequired)
-                                .forEach(p -> requestMessage.setHeader(p.getName(), "//TODO: Add header value"));
+                                .forEach(p -> requestMessage.setHeader(p.getName(), "{header}"));
 
                         if (isCoverage) {
                             operation.getValue().getParameters().stream()
                                     .filter(p -> p instanceof PathParameter)
                                     .filter(Parameter::getRequired)
-                                    .forEach(p -> requestMessage.setHeader("{" + p.getName() + "}", "//TODO: Add path parameter"));
+                                    .forEach(p -> requestMessage.setHeader("{" + p.getName() + "}", "{pathParam}"));
                         }
 
                         operation.getValue().getParameters().stream()
                                 .filter(param -> param instanceof QueryParameter)
                                 .filter(Parameter::getRequired)
-                                .forEach(param -> requestMessage.queryParam("//TODO: Add query parameter"));
+                                .forEach(param -> requestMessage.queryParam("{queryParam}"));
+                    }
 
-                        RequestBody requestBody = operation.getValue().getRequestBody();
+                    RequestBody requestBody = operation.getValue().getRequestBody();
 
-//                        if (requestBody != null && requestBody.getRequired() != null) {
-//                            if (requestBody.getRequired()) {
-//                                requestMessage.setPayload("//TODO: Add query parameter");
-////                                control = new HashMap<>();
-////                                requestMessage.setPayload(createOutboundPayload(requestBody.getContent().get("application/json").getSchema(), openAPI.getComponents().getRequestBodies()));
-//                            }
-//                        }
+                    if (requestBody != null) {
+                        //TODO: Add JsonParser
+                        requestMessage.setPayload("{body}");
                     }
 
                     withRequest(requestMessage);

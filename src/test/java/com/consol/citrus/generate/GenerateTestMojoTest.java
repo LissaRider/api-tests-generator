@@ -32,9 +32,6 @@ import java.util.Collections;
 
 import static org.mockito.Mockito.*;
 
-/**
- * @author Christoph Deppisch
- */
 public class GenerateTestMojoTest {
 
     private JavaDslTestGenerator javaTestGenerator = Mockito.mock(JavaDslTestGenerator.class);
@@ -85,7 +82,7 @@ public class GenerateTestMojoTest {
         configuration.setSuffix("_IT");
 
         SwaggerConfiguration swaggerConfiguration = new SwaggerConfiguration();
-        swaggerConfiguration.setFile("classpath:swagger/user-login-api.json");
+        swaggerConfiguration.setFile("classpath:swagger/petstore.json");
         configuration.setSwagger(swaggerConfiguration);
 
         when(swaggerJavaTestGenerator.withFramework(UnitFramework.TESTNG)).thenReturn(swaggerJavaTestGenerator);
@@ -94,7 +91,7 @@ public class GenerateTestMojoTest {
         when(swaggerJavaTestGenerator.withDescription("TODO")).thenReturn(swaggerJavaTestGenerator);
         when(swaggerJavaTestGenerator.usePackage("com.consol.citrus.swagger")).thenReturn(swaggerJavaTestGenerator);
 
-        when(swaggerJavaTestGenerator.withSpec("classpath:swagger/user-login-api.json")).thenReturn(swaggerJavaTestGenerator);
+        when(swaggerJavaTestGenerator.withSpec("classpath:swagger/petstore.json")).thenReturn(swaggerJavaTestGenerator);
         when(swaggerJavaTestGenerator.withNameSuffix("_Test")).thenReturn(swaggerJavaTestGenerator);
 
         when(swaggerJavaTestGenerator.withName("UserLoginService")).thenReturn(swaggerJavaTestGenerator);
@@ -105,7 +102,7 @@ public class GenerateTestMojoTest {
         mojo.execute();
 
         verify(swaggerJavaTestGenerator).create();
-        verify(swaggerJavaTestGenerator).withSpec("classpath:swagger/user-login-api.json");
+        verify(swaggerJavaTestGenerator).withSpec("classpath:swagger/petstore.json");
         verify(swaggerJavaTestGenerator).withNameSuffix("_IT");
     }
 }

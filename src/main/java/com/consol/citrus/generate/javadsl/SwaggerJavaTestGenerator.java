@@ -11,6 +11,8 @@ import com.squareup.javapoet.TypeSpec;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.headers.Header;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.*;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
@@ -90,7 +92,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
                     HttpMessage requestMessage = new HttpMessage();
 
-                    if (getMode().equals(GeneratorMode.CLIENT) && !isCoverage) {
+                    if (!isCoverage) {
                         String randomizedPath = path.getKey();
                         if (operation.getValue().getParameters() != null)  {
                             List<PathParameter> pathParams = operation.getValue().getParameters().stream()
@@ -99,14 +101,14 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                                     .collect(Collectors.toList());
 
                             for (PathParameter parameter : pathParams) {
-                                randomizedPath = randomizedPath.replaceAll("\\{" + parameter.getName() + "\\}", createRandomValueExpression(parameter));
+                                randomizedPath = randomizedPath.replaceAll("\\{" + parameter.getName() + "\\}", "//TODO: Add header value");
                             }
                         }
 
                         requestMessage.path(Optional.ofNullable(contextPath).orElse("") + Optional
                                 .ofNullable(openAPI.getServers().get(0).getUrl())
                                 .filter(basePath -> !basePath.equals("/")).orElse("") + randomizedPath);
-                    } else if (getMode().equals(GeneratorMode.CLIENT) && isCoverage) {
+                    } else if (isCoverage) {
                         requestMessage.path(Optional.ofNullable(contextPath).orElse("") + Optional
                                 .ofNullable(openAPI.getServers().get(0).getUrl())
                                 .filter(basePath -> !basePath.equals("/")).orElse("") + path.getKey());
@@ -117,38 +119,41 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                     requestMessage.method(org.springframework.http.HttpMethod.valueOf(operation.getKey().name()));
 
 
-//                    if (operation.getValue().getParameters() != null) {
-//
-//                        operation.getValue().getParameters().stream()
-//                                .filter(p -> p instanceof HeaderParameter)
-//                                .filter(Parameter::getRequired)
-//                                .forEach(p -> requestMessage.setHeader(p.getName(), createRandomValueExpression(p)));
-//
-//                        if (isCoverage) {
-//                            operation.getValue().getParameters().stream()
-//                                    .filter(p -> p instanceof PathParameter)
-//                                    .filter(Parameter::getRequired)
-//                                    .forEach(p -> requestMessage.setHeader("{" + p.getName() + "}", createRandomValueExpression(p)));
-//                        }
-//
-//                        operation.getValue().getParameters().stream()
-//                                .filter(param -> param instanceof QueryParameter)
-//                                .filter(Parameter::getRequired)
-//                                .forEach(param -> requestMessage.queryParam(createRandomValueExpression(param)));
-//
-//                        RequestBody requestBody = operation.getValue().getRequestBody();
-//
-//                        if (requestBody != null) {
+                    if (operation.getValue().getParameters() != null) {
+
+                        operation.getValue().getParameters().stream()
+                                .filter(p -> p instanceof HeaderParameter)
+                                .filter(Parameter::getRequired)
+                                .forEach(p -> requestMessage.setHeader(p.getName(), "//TODO: Add header value"));
+
+                        if (isCoverage) {
+                            operation.getValue().getParameters().stream()
+                                    .filter(p -> p instanceof PathParameter)
+                                    .filter(Parameter::getRequired)
+                                    .forEach(p -> requestMessage.setHeader("{" + p.getName() + "}", "//TODO: Add path parameter"));
+                        }
+
+                        operation.getValue().getParameters().stream()
+                                .filter(param -> param instanceof QueryParameter)
+                                .filter(Parameter::getRequired)
+                                .forEach(param -> requestMessage.queryParam("//TODO: Add query parameter"));
+
+                        RequestBody requestBody = operation.getValue().getRequestBody();
+
+//                        if (requestBody != null && requestBody.getRequired() != null) {
 //                            if (requestBody.getRequired()) {
-//                                control = new HashMap<>();
-//                                requestMessage.setPayload(createOutboundPayload(requestBody.getContent().get("application/json").getSchema(), openAPI.getComponents().getRequestBodies()));
+//                                requestMessage.setPayload("//TODO: Add query parameter");
+////                                control = new HashMap<>();
+////                                requestMessage.setPayload(createOutboundPayload(requestBody.getContent().get("application/json").getSchema(), openAPI.getComponents().getRequestBodies()));
 //                            }
 //                        }
-//                    }
+                    }
+
                     withRequest(requestMessage);
 
                     HttpMessage responseMessage = new HttpMessage();
                     ApiResponse response = operation.getValue().getResponses().get("200");
+
                     if (response == null) {
                         response = operation.getValue().getResponses().get("default");
                     }
@@ -161,7 +166,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 //                                responseMessage.setHeader(header.getKey(), createValidationExpression(header.getValue(), swagger.getDefinitions(), false));
 //                            }
 //                        }
-
+//
 //                        if (response.getSchema() != null) {
 //                            control = new HashMap<>();
 //                            responseMessage.setPayload(createInboundPayload(response.getSchema(), swagger.getDefinitions()));
@@ -178,162 +183,13 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
     }
 
-//    /**
-//     * Creates payload from schema for outbound message.
-//     * @param schema
-//     * @param requestBodies
-//     * @return
-//     */
-//    private String createOutboundPayload(Schema schema, Map<String, RequestBody> requestBodies) {
-//        StringBuilder payload = new StringBuilder();
-//        RequestBody requestBody = null;
-//
-//        if (schema.get$ref() != null) {
-//            String[] str = schema.get$ref().split("/");
-//            requestBody = requestBodies.get(str[str.length - 1]);
-//        }
-//
-//        if (schema.getType().equals("array")) {
-//            payload.append("[");
-//            payload.append(createOutboundPayload(requestBody., requestBodies));
-//            payload.append("]");
-//        }
-//        else {
-//            payload.append("{");
-//            if (model.getProperties() != null) {
-//                for (Map.Entry<String, Property> entry : model.getProperties().entrySet()) {
-//                    payload.append("\"").append(entry.getKey()).append("\": ").append(createOutboundPayload(entry.getValue(), definitions)).append(",");
-//                }
-//            }
-//
-//            if (payload.toString().endsWith(",")) {
-//                payload.replace(payload.length() - 1, payload.length(), "");
-//            }
-//
-//            payload.append("}");
-//        }
-//
-//        return payload.toString();
-//    }
-//
-//    /**
-//     * Creates payload from property for outbound message.
-//     * @param property
-//     * @param definitions
-//     * @return
-//     */
-//    private String createOutboundPayload(Property property, Map<String, Model> definitions) {
-//        StringBuilder payload = new StringBuilder();
-//        boolean permit = true;
-//
-//        if (property instanceof RefProperty) {
-//            String ref = ((RefProperty) property).getSimpleRef();
-//
-//
-//            if (control.containsKey(ref)) {
-//                if (control.get(ref) > 1) {
-//                    permit = false;
-//                    payload.append("{}");
-//                } else {
-//                    control.put(ref, control.get(ref) + 1);
-//                }
-//            } else {
-//                control.put(ref, 1);
-//            }
-//
-//            if (permit) {
-//                Model model = definitions.get(((RefProperty) property).getSimpleRef());
-//                payload.append("{");
-//
-//                if (model.getProperties() != null) {
-//                    for (Map.Entry<String, Property> entry : model.getProperties().entrySet()) {
-//                        payload.append("\"").append(entry.getKey()).append("\": ").append(createRandomValueExpression(entry.getValue(), definitions, true)).append(",");
-//                    }
-//                }
-//                if (control != null) {
-//                    control.put(ref, control.get(ref) - 1);
-//                }
-//
-//                if (payload.toString().endsWith(",")) {
-//                    payload.replace(payload.length() - 1, payload.length(), "");
-//                }
-//
-//                payload.append("}");
-//            }
-//        } else if (property instanceof ArrayProperty) {
-//            payload.append("[");
-//            payload.append(createRandomValueExpression(((ArrayProperty) property).getItems(), definitions, true));
-//            payload.append("]");
-//        } else if (property instanceof MapProperty) {
-//            payload.append("{");
-//            payload.append("citrus:randomString(10): ");
-//            payload.append(createRandomValueExpression(((MapProperty) property).getAdditionalProperties(), definitions, true));
-//            payload.append("}");
-//        } else {
-//            payload.append(createRandomValueExpression(property, definitions, true));
-//        }
-//
-//        return payload.toString();
-//    }
-//
-//    /**
-//     * Create payload from schema with random values.
-//     * @param property
-//     * @param definitions
-//     * @param quotes
-//     * @return
-//     */
-//    private String createRandomValueExpression(Property property, Map<String, Model> definitions, boolean quotes) {
-//        StringBuilder payload = new StringBuilder();
-//
-//        if (property instanceof RefProperty) {
-//            payload.append(createOutboundPayload(property, definitions));
-//        } else if (property instanceof ArrayProperty) {
-//            payload.append(createOutboundPayload(property, definitions));
-//        } else if (property instanceof StringProperty || property instanceof DateProperty || property instanceof DateTimeProperty) {
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//
-//            if (property instanceof DateProperty) {
-//                payload.append("citrus:currentDate()");
-//            } else if (property instanceof DateTimeProperty) {
-//                payload.append("citrus:currentDate('yyyy-MM-dd'T'hh:mm:ss')");
-//            } else if (!CollectionUtils.isEmpty(((StringProperty) property).getEnum())) {
-//                payload.append("citrus:randomEnumValue(").append(((StringProperty) property).getEnum().stream().map(value -> "'" + value + "'").collect(Collectors.joining(","))).append(")");
-//            } else if (Optional.ofNullable(property.getFormat()).orElse("").equalsIgnoreCase("uuid")) {
-//                payload.append("citrus:randomUUID()");
-//            } else {
-//                payload.append("citrus:randomString(").append(((StringProperty) property).getMaxLength() != null && ((StringProperty) property).getMaxLength() > 0 ? ((StringProperty) property).getMaxLength() : (((StringProperty) property).getMinLength() != null && ((StringProperty) property).getMinLength() > 0 ? ((StringProperty) property).getMinLength() : 10)).append(")");
-//            }
-//
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//        } else if (property instanceof IntegerProperty || property instanceof LongProperty) {
-//            payload.append("citrus:randomNumber(9)");
-//        } else if (property instanceof DecimalProperty) {
-//            payload.append("citrus:randomNumber(9)");
-//        } else if (property instanceof BooleanProperty) {
-//            payload.append("citrus:randomEnumValue('true', 'false')");
-//        } else {
-//            if (quotes) {
-//                payload.append("\"\"");
-//            } else {
-//                payload.append("");
-//            }
-//        }
-//
-//        return payload.toString();
-//    }
-//
-//    /**
-//     * Create validation expression using functions according to parameter type and format.
-//     * @param property
-//     * @param definitions
-//     * @param quotes
-//     * @return
-//     */
+    /**
+     * Create validation expression using functions according to parameter type and format.
+     * @param property
+     * @param definitions
+     * @param quotes
+     * @return
+     */
 //    private String createValidationExpression(Property property, Map<String, Model> definitions, boolean quotes) {
 //        StringBuilder payload = new StringBuilder();
 //        boolean permit = true;
@@ -496,50 +352,6 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
         }
     }
 
-    /**
-     * Create random value expression using functions according to parameter type and format.
-     * @param parameter
-     * @return
-     */
-    private String createRandomValueExpression(Parameter parameter) {
-        String quotes = "\"";
-        if (parameter instanceof QueryParameter || parameter instanceof PathParameter) {
-            quotes = "";
-        }
-
-        String type = parameter.getSchema().getType();
-        String format = parameter.getSchema().getFormat();
-
-//TODO: найти тип массива
-//        if (type.equals("array")) {
-//            type = parameter.getItems().getType();
-//            format = parameter.getItems().getFormat();
-//        }
-
-        switch (type) {
-            case "integer":
-            case "number":
-                return "citrus:randomNumber(9)";
-            case "string":
-                if (parameter.getSchema().getFormat() != null && format.equals("date")) {
-                    return quotes + "citrus:currentDate('yyyy-MM-dd')" + quotes;
-                } else if (parameter.getSchema().getFormat() != null && format.equals("date-time")) {
-                    return quotes + "citrus:currentDate('yyyy-MM-dd'T'hh:mm:ss')" + quotes;
-                } else if (StringUtils.hasText(parameter.getSchema().getPattern())) {
-                    return quotes + "citrus:randomValue(" + parameter.getSchema().getPattern() + ")" + quotes;
-                } else if (!CollectionUtils.isEmpty(parameter.getSchema().getEnum())) {
-                    return quotes + "citrus:randomEnumValue(" + (parameter.getSchema().getEnum().stream().collect(Collectors.joining(","))) + ")" + quotes;
-                } else if (Optional.ofNullable(format).orElse("").equalsIgnoreCase("uuid")){
-                    return "citrus:randomUUID()";
-                } else {
-                    return "citrus:randomString(10)";
-                }
-            case "boolean":
-                return "true";
-            default:
-                return "";
-        }
-    }
 
     /**
      * Set the swagger Open API resource to use.

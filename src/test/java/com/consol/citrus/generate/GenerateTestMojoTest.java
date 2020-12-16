@@ -20,6 +20,7 @@ import com.consol.citrus.GenerateTestMojo;
 import com.consol.citrus.config.tests.SwaggerConfiguration;
 import com.consol.citrus.config.tests.TestConfiguration;
 import com.consol.citrus.generate.javadsl.JavaDslTestGenerator;
+import com.consol.citrus.generate.javadsl.SwaggerJavaModelGenerator;
 import com.consol.citrus.generate.javadsl.SwaggerJavaTestGenerator;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -36,13 +37,15 @@ public class GenerateTestMojoTest {
 
     private JavaDslTestGenerator javaTestGenerator = Mockito.mock(JavaDslTestGenerator.class);
     private SwaggerJavaTestGenerator swaggerJavaTestGenerator = Mockito.mock(SwaggerJavaTestGenerator.class);
+    private SwaggerJavaModelGenerator swaggerJavaModelGenerator = Mockito.mock(SwaggerJavaModelGenerator.class);
 
     private GenerateTestMojo mojo;
     
     @BeforeMethod
     public void setup() {
         mojo = new GenerateTestMojo(javaTestGenerator,
-                                    swaggerJavaTestGenerator);
+                                    swaggerJavaTestGenerator,
+                                    swaggerJavaModelGenerator);
     }
     
     @Test

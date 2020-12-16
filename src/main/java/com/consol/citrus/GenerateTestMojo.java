@@ -20,6 +20,7 @@ import com.consol.citrus.config.tests.TestConfiguration;
 import com.consol.citrus.generate.SwaggerTestGenerator;
 import com.consol.citrus.generate.TestGenerator;
 import com.consol.citrus.generate.javadsl.JavaDslTestGenerator;
+import com.consol.citrus.generate.javadsl.SwaggerJavaModelGenerator;
 import com.consol.citrus.generate.javadsl.SwaggerJavaTestGenerator;
 import com.consol.citrus.generate.provider.http.HttpCodeProvider;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -49,13 +50,15 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
 
     private final JavaDslTestGenerator javaTestGenerator;
     private final SwaggerJavaTestGenerator swaggerJavaTestGenerator;
+    private final SwaggerJavaModelGenerator swaggerJavaModelGenerator;
 
     /**
      * Default constructor.
      */
     public GenerateTestMojo() {
         this(new JavaDslTestGenerator(),
-                new SwaggerJavaTestGenerator());
+                new SwaggerJavaTestGenerator(),
+                new SwaggerJavaModelGenerator());
     }
 
     /**
@@ -64,9 +67,11 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
      * @param swaggerJavaTestGenerator
      */
     public GenerateTestMojo(JavaDslTestGenerator javaTestGenerator,
-                          SwaggerJavaTestGenerator swaggerJavaTestGenerator) {
+                          SwaggerJavaTestGenerator swaggerJavaTestGenerator,
+                            SwaggerJavaModelGenerator swaggerJavaModelGenerator) {
         this.javaTestGenerator = javaTestGenerator;
         this.swaggerJavaTestGenerator = swaggerJavaTestGenerator;
+        this.swaggerJavaModelGenerator = swaggerJavaModelGenerator;
     }
 
     @Override
@@ -80,6 +85,12 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
 
         for (TestConfiguration test : getTests()) {
             if (test.getSwagger() != null) {
+                SwaggerJavaModelGenerator modelGenerator = getSwaggerJavaModelGenerator();
+
+                modelGenerator.setDirectory("src/main/java/" + test.getPackageName() + "/model")
+                        .setPackageName(test.getPackageName())
+                        .setSwaggerResource(test.getSwagger().getFile());
+
                 SwaggerTestGenerator generator = getSwaggerTestGenerator();
 
                 generator.withFramework(getFramework())
@@ -146,8 +157,17 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
      * .
      * @return test generator.
      */
-    public SwaggerTestGenerator
-    getSwaggerTestGenerator() {
+    public SwaggerTestGenerator getSwaggerTestGenerator() {
         return Optional.ofNullable(swaggerJavaTestGenerator).orElse(new SwaggerJavaTestGenerator());
+    }
+
+    /**
+     * Method provides model generator instance. Basically introduced for better mocking capabilities in unit tests but
+     * also useful for subclasses to provide customized generator instance.
+     * .
+     * @return model generator.
+     */
+    public SwaggerJavaModelGenerator getSwaggerJavaModelGenerator() {
+        return Optional.ofNullable(swaggerJavaModelGenerator).orElse(new SwaggerJavaModelGenerator());
     }
 }

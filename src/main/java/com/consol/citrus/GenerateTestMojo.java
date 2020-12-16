@@ -91,6 +91,8 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
                         .setPackageName(test.getPackageName())
                         .setSwaggerResource(test.getSwagger().getFile());
 
+                modelGenerator.create();
+
                 SwaggerTestGenerator generator = getSwaggerTestGenerator();
 
                 generator.withFramework(getFramework())

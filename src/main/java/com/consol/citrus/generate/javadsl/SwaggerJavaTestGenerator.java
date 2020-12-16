@@ -107,17 +107,17 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                                 .filter(Parameter::getRequired)
                                 .forEach(p -> requestMessage.setHeader(p.getName(), "{header}"));
 
+                        operation.getValue().getParameters().stream()
+                                .filter(param -> param instanceof QueryParameter)
+                                .filter(Parameter::getRequired)
+                                .forEach(param -> requestMessage.queryParam(param.getName(),"{queryParam}"));
+
                         if (isCoverage) {
                             operation.getValue().getParameters().stream()
                                     .filter(p -> p instanceof PathParameter)
                                     .filter(Parameter::getRequired)
                                     .forEach(p -> requestMessage.setHeader("{" + p.getName() + "}", "{pathParam}"));
                         }
-
-                        operation.getValue().getParameters().stream()
-                                .filter(param -> param instanceof QueryParameter)
-                                .filter(Parameter::getRequired)
-                                .forEach(param -> requestMessage.queryParam("{queryParam}"));
                     }
 
                     RequestBody requestBody = operation.getValue().getRequestBody();

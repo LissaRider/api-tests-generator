@@ -1029,7 +1029,7 @@
         "properties": {
           "id": {
             "type": "integer",
-            "format": "int64",
+            "format": "int",
             "example": 1
           },
           "name": {

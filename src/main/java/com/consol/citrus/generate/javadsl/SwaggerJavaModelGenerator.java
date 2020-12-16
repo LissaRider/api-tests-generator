@@ -44,8 +44,8 @@ public class SwaggerJavaModelGenerator {
                 if (type != null) {
                     switch (type) {
                         case "integer":
-                            typeName = property.getValue().getFormat().equals("int32") ? ClassName.get(Integer.class)
-                                    : ClassName.get(Long.class);
+                            typeName = property.getValue().getFormat().equals("int32") ?
+                                    ClassName.get(Integer.class) : ClassName.get(Long.class);
                             break;
                         case "number":
                             typeName = ClassName.get(Double.class);
@@ -71,7 +71,7 @@ public class SwaggerJavaModelGenerator {
                     .addFields(fieldSpecs)
                     .build();
 
-            JavaFile javaFile = JavaFile.builder("com.consol.citrus.model", classBuilder)
+            JavaFile javaFile = JavaFile.builder(packageName + ".model", classBuilder)
                     .build();
 
             try {

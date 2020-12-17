@@ -75,7 +75,7 @@ public class SwaggerJavaModelGenerator {
                     .build();
 
             try {
-                javaFile.writeTo(new File(directory)); //new File(directory)
+                javaFile.writeTo(new File(directory));
             } catch (IOException e) {
                 e.printStackTrace();
             }

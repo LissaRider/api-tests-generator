@@ -42,6 +42,9 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
     @Parameter(property = "citrus.skip.generate.test", defaultValue = "false")
     protected boolean skipGenerateTest;
 
+    @Parameter(property = "citrus.build.directory", defaultValue= "${project.basedir}/src/main/java")
+    protected String mainDirectory = "src/main/java";
+
     @Parameter(property = "citrus.build.directory", defaultValue= "${project.build.directory}/generated/citrus")
     protected String buildDirectory = "target/generated/citrus";
 
@@ -67,7 +70,7 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
      * @param swaggerJavaTestGenerator
      */
     public GenerateTestMojo(JavaDslTestGenerator javaTestGenerator,
-                          SwaggerJavaTestGenerator swaggerJavaTestGenerator,
+                            SwaggerJavaTestGenerator swaggerJavaTestGenerator,
                             SwaggerJavaModelGenerator swaggerJavaModelGenerator) {
         this.javaTestGenerator = javaTestGenerator;
         this.swaggerJavaTestGenerator = swaggerJavaTestGenerator;
@@ -85,14 +88,6 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
 
         for (TestConfiguration test : getTests()) {
             if (test.getSwagger() != null) {
-                SwaggerJavaModelGenerator modelGenerator = getSwaggerJavaModelGenerator();
-
-                modelGenerator.setDirectory("src/main/java/" + test.getPackageName() + "/model")
-                        .setPackageName(test.getPackageName())
-                        .setSwaggerResource(test.getSwagger().getFile());
-
-                modelGenerator.create();
-
                 SwaggerTestGenerator generator = getSwaggerTestGenerator();
 
                 generator.withFramework(getFramework())
@@ -120,6 +115,14 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
                 generator.withNameSuffix(test.getSuffix());
 
                 generator.create();
+
+                SwaggerJavaModelGenerator modelGenerator = getSwaggerJavaModelGenerator();
+
+                modelGenerator.setDirectory(mainDirectory);
+                modelGenerator.setPackageName(test.getPackageName());
+                modelGenerator.setSwaggerResource(test.getSwagger().getFile());
+
+                modelGenerator.create();
             } else {
                 if (!StringUtils.hasText(test.getName())) {
                     throw new MojoExecutionException("Please provide proper test name! Test name must not be empty starting with uppercase letter!");

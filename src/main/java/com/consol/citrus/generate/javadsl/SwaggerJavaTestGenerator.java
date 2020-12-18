@@ -105,18 +105,18 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                         operation.getValue().getParameters().stream()
                                 .filter(p -> p instanceof HeaderParameter)
                                 .filter(Parameter::getRequired)
-                                .forEach(p -> requestMessage.setHeader(p.getName(), "{header}"));
+                                .forEach(p -> requestMessage.setHeader(p.getName(), null));
 
                         operation.getValue().getParameters().stream()
                                 .filter(param -> param instanceof QueryParameter)
                                 .filter(Parameter::getRequired)
-                                .forEach(param -> requestMessage.queryParam(param.getName(),"{queryParam}"));
+                                .forEach(param -> requestMessage.queryParam(param.getName(),null));
 
                         if (isCoverage) {
                             operation.getValue().getParameters().stream()
                                     .filter(p -> p instanceof PathParameter)
                                     .filter(Parameter::getRequired)
-                                    .forEach(p -> requestMessage.setHeader("{" + p.getName() + "}", "{pathParam}"));
+                                    .forEach(p -> requestMessage.setHeader("{" + p.getName() + "}", null));
                         }
                     }
 
@@ -124,7 +124,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
                     if (requestBody != null) {
                         //TODO: Add JsonParser
-                        requestMessage.setPayload("{requestBody}");
+                        requestMessage.setPayload(null);
                     }
 
                     withRequest(requestMessage);

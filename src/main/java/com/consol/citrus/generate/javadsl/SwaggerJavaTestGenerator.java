@@ -146,12 +146,10 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                             }
                         }
 
-                        //TODO: To implement validation method
                         if (response.getContent() != null) {
                             Schema responseSchema = response.getContent().get("application/json").getSchema();
                             control = new HashMap<>();
-                            String s = createValidationExpression(responseSchema, openAPI.getComponents().getSchemas(), false);
-                             responseMessage.setPayload(s);
+                            responseMessage.setPayload(createValidationExpression(responseSchema, openAPI.getComponents().getSchemas()));
                         }
                     }
 
@@ -166,14 +164,13 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
     }
 
-    /** TODO: To implement method.
+    /**
      * Create validation expression using functions according to parameter type and format.
      * property - Property.
      * definitions - Map<String, Model>.
-     * quotes - boolean.
-     * @return
+     * @return validation JSON schema.
      */
-    private String createValidationExpression(Schema schema, Map<String, Schema> schemas, boolean quotes) {
+    private String createValidationExpression(Schema schema, Map<String, Schema> schemas) {
         StringBuilder payload = new StringBuilder();
         String type = schema.getType();
         String format = "null";
@@ -207,7 +204,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                 if (object.getProperties() != null) {
                     Map<String, Schema> map = object.getProperties();
                     for (Map.Entry<String, Schema> entry : map.entrySet()) {
-                        payload.append("\"").append(entry.getKey()).append("\": ").append(createValidationExpression(entry.getValue(), schemas, quotes)).append(",");
+                        payload.append("\"").append(entry.getKey()).append("\": ").append(createValidationExpression(entry.getValue(), schemas)).append(",");
                     }
                 }
 
@@ -247,7 +244,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
     /**
      * Create validation expression using functions according to parameter type and format.
      * @param parameter
-     * @return
+     * @return Validation parameter.
      */
     private String createValidationExpression(Parameter parameter) {
         switch (parameter.getSchema().getType()) {

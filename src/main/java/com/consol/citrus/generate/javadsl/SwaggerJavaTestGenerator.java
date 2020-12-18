@@ -138,11 +138,10 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
                     if (response != null) {
                         responseMessage.status(HttpStatus.OK);
-
-                        //TODO: Add validation method
+                        
                         if (response.getHeaders() != null) {
                             for (Map.Entry<String, Header> header : response.getHeaders().entrySet()) {
-                                responseMessage.setHeader(header.getKey(), "@notEmpty()@");
+                                responseMessage.setHeader(header.getKey(), createValidationHeader(header.getValue()));
                             }
                         }
 
@@ -243,23 +242,23 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
     /**
      * Create validation expression using functions according to parameter type and format.
-     * @param parameter
-     * @return Validation parameter.
+     * @param header
+     * @return validation parameter.
      */
-    private String createValidationExpression(Parameter parameter) {
-        switch (parameter.getSchema().getType()) {
+    private String createValidationHeader(Header header) {
+        switch (header.getSchema().getType()) {
             case "integer":
             case "number":
                 return "@isNumber()@";
             case "string":
-                if (parameter.getSchema().getFormat() != null && parameter.getSchema().getFormat().equals("date")) {
+                if (header.getSchema().getFormat() != null && header.getSchema().getFormat().equals("date")) {
                     return "\"@matchesDatePattern('yyyy-MM-dd')@\"";
-                } else if (parameter.getSchema().getFormat() != null && parameter.getSchema().getFormat().equals("date-time")) {
+                } else if (header.getSchema().getFormat() != null && header.getSchema().getFormat().equals("date-time")) {
                     return "\"@matchesDatePattern('yyyy-MM-dd'T'hh:mm:ss')@\"";
-                } else if (StringUtils.hasText(parameter.getSchema().getPattern())) {
-                    return "\"@matches(" + parameter.getSchema().getPattern() + ")@\"";
-                } else if (!CollectionUtils.isEmpty(parameter.getSchema().getEnum())) {
-                    return "\"@matches(" + (parameter.getSchema().getEnum().stream().collect(Collectors.joining("|"))) + ")@\"";
+                } else if (StringUtils.hasText(header.getSchema().getPattern())) {
+                    return "\"@matches(" + header.getSchema().getPattern() + ")@\"";
+                } else if (!CollectionUtils.isEmpty(header.getSchema().getEnum())) {
+                    return "\"@matches(" + (header.getSchema().getEnum().stream().collect(Collectors.joining("|"))) + ")@\"";
                 } else {
                     return "@notEmpty()@";
                 }

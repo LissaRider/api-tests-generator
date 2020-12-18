@@ -122,8 +122,8 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
                     RequestBody requestBody = operation.getValue().getRequestBody();
 
+                    //TODO: Add JsonParser
                     if (requestBody != null) {
-                        //TODO: Add JsonParser
                         requestMessage.setPayload(null);
                     }
 
@@ -148,11 +148,13 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
                         //TODO: To implement validation method
                         if (response.getContent() != null) {
-//                            response.getContent().get("application/json").getSchema();
-//                            control = new HashMap<>();
-                            responseMessage.setPayload("{responseBody}");
+                            Schema responseSchema = response.getContent().get("application/json").getSchema();
+                            control = new HashMap<>();
+                            String s = createValidationExpression(responseSchema, openAPI.getComponents().getSchemas(), false);
+                            responseMessage.setPayload(s);
                         }
                     }
+
                     withResponse(responseMessage);
 
                     super.create();
@@ -171,135 +173,136 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
      * quotes - boolean.
      * @return
      */
-    private String createValidationExpression() {
+    private String createValidationExpression(Schema schema, Map<String, Schema> schemas, boolean quotes) {
         StringBuilder payload = new StringBuilder();
-//        boolean permit = true;
-//
-//        if (property instanceof RefProperty) {
-//            String ref = ((RefProperty) property).getSimpleRef();
-//
-//            if (control.containsKey(ref)) {
-//                if (control.get(ref) > 1) {
-//                    permit = false;
-//                    payload.append("\"@ignore@\"");
-//                } else {
-//                    control.put(ref, control.get(ref) + 1);
-//                }
-//            } else {
-//                control.put(ref, 1);
-//            }
-//
-//            if (permit) {
-//                Model model = definitions.get(((RefProperty) property).getSimpleRef());
-//                payload.append("{");
-//                if (model.getProperties() != null) {
-//                    for (Map.Entry<String, Property> entry : model.getProperties().entrySet()) {
-//                        payload.append("\"").append(entry.getKey()).append("\": ").append(createValidationExpression(entry.getValue(), definitions, quotes)).append(",");
-//                    }
-//                }
-//
-//                control.put(ref, control.get(ref) - 1);
-//
-//                if (payload.toString().endsWith(",")) {
-//                    payload.replace(payload.length() - 1, payload.length(), "");
-//                }
-//
-//                payload.append("}");
-//            }
-//        } else if (property instanceof ArrayProperty) {
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//            payload.append("@ignore@");
-//
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//        } else if (property instanceof MapProperty) {
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//
-//            payload.append("@ignore@");
-//
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//        } else if (property instanceof StringProperty) {
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//
-//            if (!CollectionUtils.isEmpty(((StringProperty) property).getEnum())) {
-//                payload.append("@matches(").append(((StringProperty) property).getEnum().stream().collect(Collectors.joining("|"))).append(")@");
-//            } else {
-//                payload.append("@notEmpty()@");
-//            }
-//
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//        } else if (property instanceof DateProperty) {
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//
-//            payload.append("@matchesDatePattern('yyyy-MM-dd')@");
-//
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//        } else if (property instanceof DateTimeProperty) {
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//
-//            payload.append("@matchesDatePattern('yyyy-MM-dd'T'hh:mm:ss')@");
-//
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//        } else if (property instanceof IntegerProperty || property instanceof LongProperty) {
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//
-//            payload.append("@isNumber()@");
-//
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//        } else if (property instanceof DecimalProperty) {
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//
-//            payload.append("@isNumber()@");
-//
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//        } else if (property instanceof BooleanProperty) {
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//
-//            payload.append("@matches(true|false)@");
-//
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//        } else {
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//
-//            payload.append("@ignore@");
-//
-//            if (quotes) {
-//                payload.append("\"");
-//            }
-//        }
+        String type = schema.getType();
+        String format = "null";
+
+        if (schema.getFormat() != null) {
+            format = schema.getFormat();
+        }
+
+        boolean permit = true;
+
+        if (type == null) {
+            String[] str = schema.get$ref().split("/");
+            String ref = str[str.length - 1];
+
+            if (control.containsKey(ref)) {
+                if (control.get(ref) > 1) {
+                    permit = false;
+                    payload.append("\"@ignore@\"");
+                } else {
+                    control.put(ref, control.get(ref) + 1);
+                }
+            } else {
+                control.put(ref, 1);
+            }
+
+            if (permit) {
+
+                Schema object = schemas.get(ref);
+
+                payload.append("{");
+                if (object.getProperties() != null) {
+                    Map<String, Schema> map = object.getProperties();
+                    for (Map.Entry<String, Schema> entry : map.entrySet()) {
+                        payload.append("\"").append(entry.getKey()).append("\": ").append(createValidationExpression(entry.getValue(), schemas, quotes)).append(",");
+                    }
+                }
+
+                control.put(ref, control.get(ref) - 1);
+
+                if (payload.toString().endsWith(",")) {
+                    payload.replace(payload.length() - 1, payload.length(), "");
+                }
+
+                payload.append("}");
+            }
+        } else if (type.equals("array")) {
+            if (quotes) {
+                payload.append("\"");
+            }
+            payload.append("@ignore@");
+
+            if (quotes) {
+                payload.append("\"");
+            }
+        } else if (type.equals("object") && schema.getAdditionalProperties() != null) {
+            if (quotes) {
+                payload.append("\"");
+            }
+
+            payload.append("@ignore@");
+
+            if (quotes) {
+                payload.append("\"");
+            }
+        } else if (type.equals("string") && format.equals("date")) {
+            if (quotes) {
+                payload.append("\"");
+            }
+
+            payload.append("@matchesDatePattern('yyyy-MM-dd')@");
+
+            if (quotes) {
+                payload.append("\"");
+            }
+        } else if (type.equals("string") && format.equals("date-time")) {
+            if (quotes) {
+                payload.append("\"");
+            }
+
+            payload.append("@matchesDatePattern('yyyy-MM-dd'T'hh:mm:ss')@");
+
+            if (quotes) {
+                payload.append("\"");
+            }
+        } else if (type.equals("string")) {
+            if (quotes) {
+                payload.append("\"");
+            }
+
+            if (!CollectionUtils.isEmpty(schema.getEnum())) {
+                payload.append("@matches(").append(schema.getEnum().stream().collect(Collectors.joining("|"))).append(")@");
+            } else {
+                payload.append("@notEmpty()@");
+            }
+
+            if (quotes) {
+                payload.append("\"");
+            }
+        } else if (type.equals("integer") || type.equals("number")) {
+            if (quotes) {
+                payload.append("\"");
+            }
+
+            payload.append("@isNumber()@");
+
+            if (quotes) {
+                payload.append("\"");
+            }
+        } else if (type.equals("boolean")) {
+            if (quotes) {
+                payload.append("\"");
+            }
+
+            payload.append("@matches(true|false)@");
+
+            if (quotes) {
+                payload.append("\"");
+            }
+        } else {
+            if (quotes) {
+                payload.append("\"");
+            }
+
+            payload.append("@ignore@");
+
+            if (quotes) {
+                payload.append("\"");
+            }
+        }
 
         return payload.toString();
     }

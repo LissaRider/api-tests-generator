@@ -124,7 +124,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
                     //TODO: Add JsonParser
                     if (requestBody != null) {
-                        requestMessage.setPayload(null);
+                        requestMessage.setPayload("");
                     }
 
                     withRequest(requestMessage);
@@ -151,7 +151,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                             Schema responseSchema = response.getContent().get("application/json").getSchema();
                             control = new HashMap<>();
                             String s = createValidationExpression(responseSchema, openAPI.getComponents().getSchemas(), false);
-                            responseMessage.setPayload(s);
+                             responseMessage.setPayload(s);
                         }
                     }
 
@@ -220,88 +220,25 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                 payload.append("}");
             }
         } else if (type.equals("array")) {
-            if (quotes) {
-                payload.append("\"");
-            }
-            payload.append("@ignore@");
-
-            if (quotes) {
-                payload.append("\"");
-            }
+            payload.append("\"@ignore@\"");
         } else if (type.equals("object") && schema.getAdditionalProperties() != null) {
-            if (quotes) {
-                payload.append("\"");
-            }
-
-            payload.append("@ignore@");
-
-            if (quotes) {
-                payload.append("\"");
-            }
+            payload.append("\"@ignore@\"");
         } else if (type.equals("string") && format.equals("date")) {
-            if (quotes) {
-                payload.append("\"");
-            }
-
-            payload.append("@matchesDatePattern('yyyy-MM-dd')@");
-
-            if (quotes) {
-                payload.append("\"");
-            }
+            payload.append("\"@matchesDatePattern('yyyy-MM-dd')@\"");
         } else if (type.equals("string") && format.equals("date-time")) {
-            if (quotes) {
-                payload.append("\"");
-            }
-
-            payload.append("@matchesDatePattern('yyyy-MM-dd'T'hh:mm:ss')@");
-
-            if (quotes) {
-                payload.append("\"");
-            }
+            payload.append("\"@matchesDatePattern('yyyy-MM-dd'T'hh:mm:ss')@\"");
         } else if (type.equals("string")) {
-            if (quotes) {
-                payload.append("\"");
-            }
-
             if (!CollectionUtils.isEmpty(schema.getEnum())) {
-                payload.append("@matches(").append(schema.getEnum().stream().collect(Collectors.joining("|"))).append(")@");
+                payload.append("\"@matches(").append(schema.getEnum().stream().collect(Collectors.joining("|"))).append(")@\"");
             } else {
-                payload.append("@notEmpty()@");
-            }
-
-            if (quotes) {
-                payload.append("\"");
+                payload.append("\"@notEmpty()@\"");
             }
         } else if (type.equals("integer") || type.equals("number")) {
-            if (quotes) {
-                payload.append("\"");
-            }
-
-            payload.append("@isNumber()@");
-
-            if (quotes) {
-                payload.append("\"");
-            }
+            payload.append("\"@isNumber()@\"");
         } else if (type.equals("boolean")) {
-            if (quotes) {
-                payload.append("\"");
-            }
-
-            payload.append("@matches(true|false)@");
-
-            if (quotes) {
-                payload.append("\"");
-            }
+            payload.append("\"@matches(true|false)@\"");
         } else {
-            if (quotes) {
-                payload.append("\"");
-            }
-
-            payload.append("@ignore@");
-
-            if (quotes) {
-                payload.append("\"");
-            }
+            payload.append("\"@ignore@\"");
         }
 
         return payload.toString();

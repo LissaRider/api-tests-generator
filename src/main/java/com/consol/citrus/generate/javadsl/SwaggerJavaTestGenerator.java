@@ -183,7 +183,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
             }
         }
 
-        return sb.toString();
+        return sb.toString().replaceAll("[-._~:/?#\\[\\]@!$&'()*+,;=]", "");
     }
 
     /**

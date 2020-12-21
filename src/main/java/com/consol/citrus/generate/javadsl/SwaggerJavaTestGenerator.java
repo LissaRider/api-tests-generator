@@ -11,8 +11,8 @@ import com.squareup.javapoet.TypeSpec;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.headers.Header;
+import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.*;
 import io.swagger.v3.oas.models.responses.ApiResponse;
@@ -203,7 +203,9 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
         boolean permit = true;
 
-        if (type == null) {
+        if (schema instanceof ComposedSchema) {
+            payload.append("\"@ignore@\"");
+        } else if (type == null && schema.get$ref() != null) {
             String[] str = schema.get$ref().split("/");
             String ref = str[str.length - 1];
 

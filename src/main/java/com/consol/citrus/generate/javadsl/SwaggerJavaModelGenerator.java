@@ -6,7 +6,8 @@ import com.squareup.javapoet.*;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.parser.OpenAPIV3Parser;
-import javassist.bytecode.analysis.Type;
+import lombok.Builder;
+import lombok.Data;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.lang.model.element.Modifier;
@@ -69,6 +70,8 @@ public class SwaggerJavaModelGenerator {
             TypeSpec classBuilder = TypeSpec.classBuilder(schema.getKey())
                     .addModifiers(Modifier.PUBLIC)
                     .addFields(fieldSpecs)
+                    .addAnnotation(Data.class)
+                    .addAnnotation(Builder.class)
                     .build();
 
             JavaFile javaFile = JavaFile.builder(packageName + ".model", classBuilder)

@@ -24,15 +24,12 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<SwaggerJavaTestGenerator> implements SwaggerTestGenerator<SwaggerJavaTestGenerator> {
     /** Loop counter for recursion */
-    private Map<String, Integer> control = new HashMap<>();
+    private Map<String, Integer> control;
 
     private static boolean isCoverage;
 
@@ -73,7 +70,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
             if (title != null) {
                 title = title.replaceAll("[^A-Za-z0-9]", "");
                 if (title.matches("^[A-Za-z]+")) {
-                    title = title.substring(0,1).toUpperCase() + title.substring(1);
+                    title = title.substring(0, 1).toUpperCase() + title.substring(1);
                 } else {
                     title = null;
                 }
@@ -89,7 +86,13 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                 if (responses.containsKey("200") || responses.containsKey("default")) {
 
                     // Now generate it
-                    withName(namePrefix + operation.getValue().getOperationId()  + nameSuffix);
+
+                    if (operation.getValue().getOperationId() != null) {
+                        withName(namePrefix + operation.getValue().getOperationId()  + nameSuffix);
+                    } else {
+                        String endpointName = getEndpointName(path.getKey());
+                        withName(String.format("%s%s_%s%s", namePrefix, operation.getKey().name(), endpointName, nameSuffix));
+                    }
 
                     HttpMessage requestMessage = new HttpMessage();
 
@@ -161,6 +164,26 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
             }
         }
 
+    }
+
+    /**
+     * Create test name from endpoint.
+     */
+    private String getEndpointName(String endpoint) {
+        StringBuilder sb = new StringBuilder();
+        String[] str = Arrays.stream(endpoint.split("/"))
+                .filter(s -> !s.contains("{")).toArray(String[]::new);
+
+        for (String s : str) {
+            if (s.length() > 0 && Character.isAlphabetic(s.charAt(0))) {
+                char upper = Character.toUpperCase(s.charAt(0));
+                sb.append(upper).append(s.substring(1));
+            } else {
+                sb.append(s);
+            }
+        }
+
+        return sb.toString();
     }
 
     /**

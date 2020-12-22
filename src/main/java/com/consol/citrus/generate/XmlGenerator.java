@@ -57,7 +57,6 @@ public class XmlGenerator extends Generator {
             StreamResult result = new StreamResult(new File(directory + fileName));
 
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty(OutputKeys.STANDALONE, "yes");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 
             transformer.transform(source, result);

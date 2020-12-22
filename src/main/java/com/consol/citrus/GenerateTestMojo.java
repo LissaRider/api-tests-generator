@@ -46,6 +46,9 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
     @Parameter(property = "citrus.build.directory", defaultValue= "${project.basedir}/src/main/java")
     protected String mainDirectory = "src/main/java";
 
+    @Parameter(property = "citrus.build.directory", defaultValue= "${project.basedir}/src/test/resources")
+    protected String resourcesDirectory = "src/test/resources";
+
     @Parameter(property = "citrus.build.directory", defaultValue= "${project.build.directory}/generated/citrus")
     protected String buildDirectory = "target/generated/citrus";
 
@@ -93,12 +96,20 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
 
         for (TestConfiguration test : getTests()) {
             if (test.getSwagger() != null) {
+                //Create object model
                 SwaggerJavaModelGenerator modelGenerator = getSwaggerJavaModelGenerator();
 
                 modelGenerator.setDirectory(mainDirectory);
                 modelGenerator.setPackageName(test.getPackageName());
                 modelGenerator.setSwaggerResource(test.getSwagger().getFile());
 
+                //Create citrus-context.xml
+                XmlGenerator xmlGenerator = new XmlGenerator();
+                xmlGenerator.setDirectory(resourcesDirectory + "/");
+
+                xmlGenerator.create();
+
+                //Create tests
                 SwaggerTestGenerator generator = getSwaggerTestGenerator();
 
                 generator.withFramework(getFramework())

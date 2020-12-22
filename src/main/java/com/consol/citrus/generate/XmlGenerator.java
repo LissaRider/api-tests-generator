@@ -1,6 +1,6 @@
 package com.consol.citrus.generate;
 
-import org.w3c.dom.Attr;
+import com.consol.citrus.Generator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -15,8 +15,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 
-public class XmlGenerator {
-    private String directory;
+public class XmlGenerator extends Generator {
+    private final String fileName = "citrus-context.xml";
 
     public void create() {
         try {
@@ -53,27 +53,18 @@ public class XmlGenerator {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
             DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(new File(directory));
+            StreamResult result = new StreamResult(new File(directory + fileName));
 
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            transformer.setOutputProperty(OutputKeys.STANDALONE, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 
             transformer.transform(source, result);
 
-            System.out.println("File saved!");
-
-        } catch (ParserConfigurationException pce) {
-            pce.printStackTrace();
-        } catch (TransformerException tfe) {
-            tfe.printStackTrace();
+            log.info("Successfully created file: " + fileName);
+        } catch (ParserConfigurationException | TransformerException ex) {
+            ex.printStackTrace();
         }
     }
 
-    public String getDirectory() {
-        return directory;
-    }
-
-    public void setDirectory(String directory) {
-        this.directory = directory;
-    }
 }

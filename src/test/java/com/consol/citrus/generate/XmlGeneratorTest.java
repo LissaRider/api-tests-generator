@@ -12,7 +12,7 @@ public class XmlGeneratorTest {
     public void testCreateCitrusContext() throws IOException {
         XmlGenerator xmlGenerator = new XmlGenerator();
 
-        xmlGenerator.setDirectory(testDir + "/src/test/resources/test.xml");
+        xmlGenerator.setDirectory(testDir + "/src/test/resources/");
 
         xmlGenerator.create();
     }

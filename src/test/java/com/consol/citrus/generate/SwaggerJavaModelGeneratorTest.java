@@ -22,9 +22,9 @@ public class SwaggerJavaModelGeneratorTest {
     public void testCreateModelAsClient() {
         SwaggerJavaModelGenerator modelGenerator = new SwaggerJavaModelGenerator();
 
-        modelGenerator.setDirectory("src/test/java")
-                .setPackageName("com.consol.citrus")
-                .setSwaggerResource("swagger/petstore.json");
+        modelGenerator.setDirectory("src/test/java");
+        modelGenerator.setPackageName("com.consol.citrus");
+        modelGenerator.setSwaggerResource("swagger/petstore.json");
 
         modelGenerator.create();
     }

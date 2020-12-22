@@ -1,5 +1,6 @@
 package com.consol.citrus.generate.javadsl;
 
+import com.consol.citrus.Generator;
 import com.consol.citrus.exceptions.CitrusRuntimeException;
 import com.consol.citrus.util.FileUtils;
 import com.squareup.javapoet.*;
@@ -17,10 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class SwaggerJavaModelGenerator {
-    private String swaggerResource;
-    private String packageName;
-    private String directory;
+public class SwaggerJavaModelGenerator extends Generator {
 
     public void create() {
         OpenAPI openAPI;
@@ -79,36 +77,10 @@ public class SwaggerJavaModelGenerator {
 
             try {
                 javaFile.writeTo(new File(directory));
+                log.info("Successfully created class: " + schema.getKey());
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    public String getSwaggerResource() {
-        return swaggerResource;
-    }
-
-    public SwaggerJavaModelGenerator setSwaggerResource(String swaggerResource) {
-        this.swaggerResource = swaggerResource;
-        return this;
-    }
-
-    public String getPackageName() {
-        return packageName;
-    }
-
-    public SwaggerJavaModelGenerator setPackageName(String packageName) {
-        this.packageName = packageName;
-        return this;
-    }
-
-    public String getDirectory() {
-        return directory;
-    }
-
-    public SwaggerJavaModelGenerator setDirectory(String directory) {
-        this.directory = directory;
-        return this;
     }
 }

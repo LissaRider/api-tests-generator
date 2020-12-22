@@ -18,6 +18,7 @@ import java.io.File;
 public class XmlGenerator extends Generator {
     private final String fileName = "citrus-context.xml";
 
+    @Override
     public void create() {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();

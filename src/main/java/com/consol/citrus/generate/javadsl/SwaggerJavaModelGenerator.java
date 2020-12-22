@@ -20,6 +20,7 @@ import java.util.Map;
 
 public class SwaggerJavaModelGenerator extends Generator {
 
+    @Override
     public void create() {
         OpenAPI openAPI;
 

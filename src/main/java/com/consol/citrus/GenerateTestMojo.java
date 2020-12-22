@@ -19,6 +19,7 @@ package com.consol.citrus;
 import com.consol.citrus.config.tests.TestConfiguration;
 import com.consol.citrus.generate.SwaggerTestGenerator;
 import com.consol.citrus.generate.TestGenerator;
+import com.consol.citrus.generate.XmlGenerator;
 import com.consol.citrus.generate.javadsl.JavaDslTestGenerator;
 import com.consol.citrus.generate.javadsl.SwaggerJavaModelGenerator;
 import com.consol.citrus.generate.javadsl.SwaggerJavaTestGenerator;
@@ -54,6 +55,7 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
     private final JavaDslTestGenerator javaTestGenerator;
     private final SwaggerJavaTestGenerator swaggerJavaTestGenerator;
     private final SwaggerJavaModelGenerator swaggerJavaModelGenerator;
+    private final XmlGenerator xmlGenerator;
 
     /**
      * Default constructor.
@@ -61,7 +63,8 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
     public GenerateTestMojo() {
         this(new JavaDslTestGenerator(),
                 new SwaggerJavaTestGenerator(),
-                new SwaggerJavaModelGenerator());
+                new SwaggerJavaModelGenerator(),
+                new XmlGenerator());
     }
 
     /**
@@ -71,10 +74,12 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
      */
     public GenerateTestMojo(JavaDslTestGenerator javaTestGenerator,
                             SwaggerJavaTestGenerator swaggerJavaTestGenerator,
-                            SwaggerJavaModelGenerator swaggerJavaModelGenerator) {
+                            SwaggerJavaModelGenerator swaggerJavaModelGenerator,
+                            XmlGenerator xmlGenerator) {
         this.javaTestGenerator = javaTestGenerator;
         this.swaggerJavaTestGenerator = swaggerJavaTestGenerator;
         this.swaggerJavaModelGenerator = swaggerJavaModelGenerator;
+        this.xmlGenerator = xmlGenerator;
     }
 
     @Override
@@ -88,6 +93,12 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
 
         for (TestConfiguration test : getTests()) {
             if (test.getSwagger() != null) {
+                SwaggerJavaModelGenerator modelGenerator = getSwaggerJavaModelGenerator();
+
+                modelGenerator.setDirectory(mainDirectory);
+                modelGenerator.setPackageName(test.getPackageName());
+                modelGenerator.setSwaggerResource(test.getSwagger().getFile());
+
                 SwaggerTestGenerator generator = getSwaggerTestGenerator();
 
                 generator.withFramework(getFramework())
@@ -115,12 +126,6 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
                 generator.withNameSuffix(test.getSuffix());
 
                 generator.create();
-
-                SwaggerJavaModelGenerator modelGenerator = getSwaggerJavaModelGenerator();
-
-                modelGenerator.setDirectory(mainDirectory);
-                modelGenerator.setPackageName(test.getPackageName());
-                modelGenerator.setSwaggerResource(test.getSwagger().getFile());
 
                 modelGenerator.create();
             } else {
@@ -174,5 +179,9 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
      */
     public SwaggerJavaModelGenerator getSwaggerJavaModelGenerator() {
         return Optional.ofNullable(swaggerJavaModelGenerator).orElse(new SwaggerJavaModelGenerator());
+    }
+
+    public XmlGenerator getXmlGenerator() {
+        return Optional.ofNullable(xmlGenerator).orElse(new XmlGenerator());
     }
 }

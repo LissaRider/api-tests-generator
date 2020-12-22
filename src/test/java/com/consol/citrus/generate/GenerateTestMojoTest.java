@@ -38,6 +38,7 @@ public class GenerateTestMojoTest {
     private JavaDslTestGenerator javaTestGenerator = Mockito.mock(JavaDslTestGenerator.class);
     private SwaggerJavaTestGenerator swaggerJavaTestGenerator = Mockito.mock(SwaggerJavaTestGenerator.class);
     private SwaggerJavaModelGenerator swaggerJavaModelGenerator = Mockito.mock(SwaggerJavaModelGenerator.class);
+    private XmlGenerator xmlGenerator = Mockito.mock(XmlGenerator.class);
 
     private GenerateTestMojo mojo;
     
@@ -45,7 +46,8 @@ public class GenerateTestMojoTest {
     public void setup() {
         mojo = new GenerateTestMojo(javaTestGenerator,
                                     swaggerJavaTestGenerator,
-                                    swaggerJavaModelGenerator);
+                                    swaggerJavaModelGenerator,
+                                    xmlGenerator);
     }
     
     @Test

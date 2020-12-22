@@ -9,6 +9,8 @@ public abstract class Generator {
     protected String packageName;
     protected String directory;
 
+    public abstract void create();
+
     public String getSwaggerResource() {
         return swaggerResource;
     }

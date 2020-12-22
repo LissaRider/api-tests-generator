@@ -47,7 +47,7 @@ public class XmlGenerator extends Generator {
             repository.appendChild(schemas);
 
             Element client = doc.createElement("citrus-http:client");
-            client.setAttribute("id", "htpClient");
+            client.setAttribute("id", "httpClient");
             client.setAttribute("request-url", "https://petstore3.swagger.io");
             beansElement.appendChild(client);
 

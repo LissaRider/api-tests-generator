@@ -103,7 +103,7 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
                 modelGenerator.setPackageName(test.getPackageName());
                 modelGenerator.setSwaggerResource(test.getSwagger().getFile());
 
-                //Create citrus-context.xml
+                //Create citrus-context.xml and pom.xml
                 XmlGenerator xmlGenerator = new XmlGenerator();
                 xmlGenerator.setDirectory(resourcesDirectory + "/");
 

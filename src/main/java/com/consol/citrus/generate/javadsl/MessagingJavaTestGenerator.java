@@ -61,18 +61,10 @@ public class MessagingJavaTestGenerator<T extends MessagingJavaTestGenerator> ex
     protected List<CodeBlock> getActions() {
         List<CodeBlock> codeBlocks = super.getActions();
 
-        if (getMode().equals(GeneratorMode.CLIENT)) {
-            codeBlocks.add(getSendRequestCodeProvider(request).getCode(Optional.ofNullable(endpoint).orElse(getMode().name().toLowerCase()), generateOutboundMessage(request)));
+        codeBlocks.add(getSendRequestCodeProvider(request).getCode(Optional.ofNullable(endpoint).orElse(getMode().name().toLowerCase()), generateOutboundMessage(request)));
 
-            if (response != null) {
-                codeBlocks.add(getReceiveResponseCodeProvider(response).getCode(Optional.ofNullable(endpoint).orElse(getMode().name().toLowerCase()), generateInboundMessage(response)));
-            }
-        } else if (getMode().equals(GeneratorMode.SERVER)) {
-            codeBlocks.add(getReceiveRequestCodeProvider(request).getCode(Optional.ofNullable(endpoint).orElse(getMode().name().toLowerCase()), generateInboundMessage(request)));
-
-            if (response != null) {
-                codeBlocks.add(getSendResponseCodeProvider(response).getCode(Optional.ofNullable(endpoint).orElse(getMode().name().toLowerCase()), generateOutboundMessage(response)));
-            }
+        if (response != null) {
+            codeBlocks.add(getReceiveResponseCodeProvider(response).getCode(Optional.ofNullable(endpoint).orElse(getMode().name().toLowerCase()), generateInboundMessage(response)));
         }
 
         return codeBlocks;

@@ -80,18 +80,14 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
         for (Map.Entry<String, PathItem> path : openAPI.getPaths().entrySet()) {
             for (Map.Entry<PathItem.HttpMethod, Operation> operation : path.getValue().readOperationsMap().entrySet()) {
-
-                ApiResponses responses = operation.getValue().getResponses();
-
-                if (responses.containsKey("200") || responses.containsKey("default")) {
+                for (Map.Entry<String, ApiResponse> responses: operation.getValue().getResponses().entrySet()) {
 
                     // Now generate it
-
                     if (operation.getValue().getOperationId() != null) {
-                        withName(namePrefix + operation.getValue().getOperationId()  + nameSuffix);
+                        withName(String.format("%s%s_%s%s", namePrefix, operation.getValue().getOperationId(), responses.getKey(), nameSuffix));
                     } else {
                         String endpointName = getEndpointName(path.getKey());
-                        withName(String.format("%s%s_%s%s", namePrefix, operation.getKey().name(), endpointName, nameSuffix));
+                        withName(String.format("%s%s_%s_%s%s", namePrefix, operation.getKey().name(), endpointName, responses.getKey(), nameSuffix));
                     }
 
                     HttpMessage requestMessage = new HttpMessage();
@@ -133,15 +129,25 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                     withRequest(requestMessage);
 
                     HttpMessage responseMessage = new HttpMessage();
-                    ApiResponse response = operation.getValue().getResponses().get("200");
-
-                    if (response == null) {
-                        response = operation.getValue().getResponses().get("default");
-                    }
+                    ApiResponse response = responses.getValue();
 
                     if (response != null) {
-                        responseMessage.status(HttpStatus.OK);
-                        
+                        String code = responses.getKey();
+
+                        if (code.equalsIgnoreCase("default")) {
+                            responseMessage.status(HttpStatus.OK);
+                        }
+                        else {
+                            try {
+                                int status = Integer.parseInt(code);
+                                responseMessage.status(HttpStatus.valueOf(status));
+                            } catch (NumberFormatException e) {
+                                responseMessage.status(HttpStatus.OK);
+                                log.warn("Cannot create new test case for status code: '" + code + "' Created by default");
+                            }
+                        }
+
+
                         if (response.getHeaders() != null) {
                             for (Map.Entry<String, Header> header : response.getHeaders().entrySet()) {
                                 responseMessage.setHeader(header.getKey(), createValidationHeader(header.getValue()));

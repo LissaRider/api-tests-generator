@@ -121,9 +121,8 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
                     RequestBody requestBody = operation.getValue().getRequestBody();
 
-                    //TODO: Add JsonParser
                     if (requestBody != null) {
-                        requestMessage.setPayload("");
+                        requestMessage.setPayload("${payload}");
                     }
 
                     withRequest(requestMessage);

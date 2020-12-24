@@ -54,8 +54,6 @@ public class JavaDslTestGenerator<T extends JavaDslTestGenerator> extends JavaTe
 
     @Override
     protected List<CodeBlock> getActions() {
-        List<CodeBlock> codeBlocks = new ArrayList<>();
-        codeBlocks.add(CodeBlock.builder().add("runner.run(echo(\"TODO: Code the test $L\"));", getName()).build());
-        return codeBlocks;
+        return new ArrayList<>();
     }
 }

@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 public class XmlGeneratorTest {
     private String testDir = Paths.get(".").toAbsolutePath().normalize().toString();
 
-    @Test
+    @Test(enabled = false)
     public void testCreateCitrusContext() throws IOException {
         XmlGenerator xmlGenerator = new XmlGenerator();
 

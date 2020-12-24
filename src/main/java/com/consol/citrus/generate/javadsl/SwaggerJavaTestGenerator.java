@@ -75,7 +75,7 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                     title = null;
                 }
             }
-            withNamePrefix(StringUtils.trimAllWhitespace(Optional.ofNullable(title).orElse("Swagger")) + "_");
+            withNamePrefix(StringUtils.trimAllWhitespace(Optional.ofNullable(title).orElse("OpenApi")) + "_");
         }
 
         for (Map.Entry<String, PathItem> path : openAPI.getPaths().entrySet()) {

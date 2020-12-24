@@ -6,7 +6,7 @@
 
   <artifactId>generator-maven-plugin</artifactId>
   <groupId>ru.lanit.generator</groupId>
-  <version>3.0.1</version>
+  <version>3.1.0</version>
   <packaging>maven-plugin</packaging>
   <name>Generator Maven Plugin</name>
   <description>Generator Maven Plugin</description>

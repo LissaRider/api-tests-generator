@@ -54,10 +54,10 @@ public class SwaggerJavaTestGeneratorTest {
 
         generator.create();
 
-        verifyTest("UserLoginClient_createUser_IT");
-        verifyTest("UserLoginClient_loginUser_IT");
-        verifyTest("UserLoginClient_logoutUser_IT");
-        verifyTest("UserLoginClient_getUserByName_IT");
+        verifyTest("UserLoginClient_createUser_default_IT");
+        verifyTest("UserLoginClient_loginUser_200_IT");
+        verifyTest("UserLoginClient_logoutUser_default_IT");
+        verifyTest("UserLoginClient_getUserByName_200_IT");
     }
 
     private void verifyTest(String name) throws IOException {

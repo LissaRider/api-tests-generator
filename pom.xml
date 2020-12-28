@@ -51,18 +51,8 @@
   <dependencies>
     <dependency>
       <groupId>io.swagger.codegen.v3</groupId>
-      <artifactId>swagger-codegen-maven-plugin</artifactId>
-      <version>3.0.23</version>
-    </dependency>
-    <dependency>
-      <groupId>io.swagger.codegen.v3</groupId>
       <artifactId>swagger-codegen</artifactId>
       <version>3.0.23</version>
-    </dependency>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>${lombok.version}</version>
     </dependency>
     <dependency>
       <groupId>com.consol.citrus</groupId>

@@ -24,7 +24,6 @@ import com.consol.citrus.generate.javadsl.JavaDslTestGenerator;
 import com.consol.citrus.generate.javadsl.SwaggerJavaModelGenerator;
 import com.consol.citrus.generate.javadsl.SwaggerJavaTestGenerator;
 import com.consol.citrus.generate.provider.http.HttpCodeProvider;
-import io.swagger.codegen.v3.maven.plugin.CodeGenMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -33,8 +32,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.springframework.util.StringUtils;
 
-import java.io.File;
-import java.lang.reflect.Field;
 import java.util.Optional;
 
 /**
@@ -107,12 +104,7 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
 
         for (TestConfiguration test : getTests()) {
             if (test.getSwagger() != null) {
-                //Create object model
-                try {
-                    getCodeGenMojo(test).execute();
-                } catch (NoSuchFieldException | IllegalAccessException e) {
-                    e.printStackTrace();
-                }
+                //TODO: Create object model
 
                 //Create citrus-context.xml and pom.xml
                 XmlGenerator xmlGenerator = new XmlGenerator();
@@ -203,72 +195,5 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
 
     public XmlGenerator getXmlGenerator() {
         return Optional.ofNullable(xmlGenerator).orElse(new XmlGenerator());
-    }
-
-    public CodeGenMojo getCodeGenMojo(TestConfiguration test) throws NoSuchFieldException, IllegalAccessException {
-        Class<?> clazz = CodeGenMojo.class;
-        CodeGenMojo codeGenMojo = new CodeGenMojo();
-
-        Field field = clazz.getDeclaredField("language");
-        field.setAccessible(true);
-        field.set(codeGenMojo, "java");
-
-        field = clazz.getDeclaredField("output");
-        field.setAccessible(true);
-        field.set(codeGenMojo, new File(baseDir));
-
-        field = clazz.getDeclaredField("inputSpec");
-        field.setAccessible(true);
-        field.set(codeGenMojo, "src/test/resources/swagger/petstore.json");
-
-        field = clazz.getDeclaredField("modelPackage");
-        field.setAccessible(true);
-        field.set(codeGenMojo, test.getPackageName() + ".model");
-
-        field = clazz.getDeclaredField("generateApis");
-        field.setAccessible(true);
-        field.set(codeGenMojo, false);
-
-        field = clazz.getDeclaredField("generateSupportingFiles");
-        field.setAccessible(true);
-        field.set(codeGenMojo, false);
-
-        field = clazz.getDeclaredField("generateModelTests");
-        field.setAccessible(true);
-        field.set(codeGenMojo, false);
-
-        field = clazz.getDeclaredField("generateModelDocumentation");
-        field.setAccessible(true);
-        field.set(codeGenMojo, false);
-
-        field = clazz.getDeclaredField("generateApiTests");
-        field.setAccessible(true);
-        field.set(codeGenMojo, false);
-
-        field = clazz.getDeclaredField("generateApiDocumentation");
-        field.setAccessible(true);
-        field.set(codeGenMojo, false);
-
-        field = clazz.getDeclaredField("generateApiDocumentation");
-        field.setAccessible(true);
-        field.set(codeGenMojo, false);
-
-        field = clazz.getDeclaredField("skip");
-        field.setAccessible(true);
-        field.set(codeGenMojo, false);
-
-        field = clazz.getDeclaredField("skip");
-        field.setAccessible(true);
-        field.set(codeGenMojo, false);
-
-        field = clazz.getDeclaredField("addCompileSourceRoot");
-        field.setAccessible(true);
-        field.set(codeGenMojo, false);
-
-        field = clazz.getDeclaredField("project");
-        field.setAccessible(true);
-        field.set(codeGenMojo, project);
-
-        return codeGenMojo;
     }
 }

@@ -19,6 +19,10 @@ public class SwaggerJavaModelGenerator extends Generator {
         DefaultGenerator generator = new DefaultGenerator();
         Class<?> clazz = DefaultGenerator.class;
 
+        if (swaggerResource.startsWith("file:")) {
+            swaggerResource = swaggerResource.substring(5);
+        }
+
         try {
             config.setInputSpec(FileUtils.readToString(new File(swaggerResource)));
         } catch (IOException e) {

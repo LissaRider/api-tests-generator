@@ -6,8 +6,8 @@ import com.consol.citrus.util.FileUtils;
 import io.swagger.codegen.v3.ClientOptInput;
 import io.swagger.codegen.v3.DefaultGenerator;
 import io.swagger.codegen.v3.config.CodegenConfigurator;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
@@ -20,8 +20,7 @@ public class SwaggerJavaModelGenerator extends Generator {
         Class<?> clazz = DefaultGenerator.class;
 
         try {
-            config.setInputSpec(FileUtils.readToString(new PathMatchingResourcePatternResolver()
-                    .getResource(swaggerResource)));
+            config.setInputSpec(FileUtils.readToString(new File(swaggerResource)));
         } catch (IOException e) {
             throw new CitrusRuntimeException("Failed to parse Swagger Open API specification: " + swaggerResource, e);
         }

@@ -25,7 +25,7 @@ public class SwaggerJavaModelGeneratorTest {
 
         modelGenerator.setBaseDir(baseDir);
         modelGenerator.setPackageName("com.consol.citrus");
-        modelGenerator.setSwaggerResource("swagger/petstore.json");
+        modelGenerator.setSwaggerResource(baseDir + "/src/test/resources/swagger/petstore.json");
 
         modelGenerator.create();
     }

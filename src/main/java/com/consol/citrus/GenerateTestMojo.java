@@ -56,10 +56,6 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
     @Parameter(property = "citrus.build.coverage", defaultValue = "false")
     protected boolean isCoverage;
 
-    @Parameter(readonly = true, required = true, defaultValue = "${project}"
-    )
-    private MavenProject project;
-
     @Parameter(readonly = true, defaultValue = "${project.basedir}")
     private String baseDir;
 

@@ -8,6 +8,7 @@ public abstract class Generator {
     protected String swaggerResource;
     protected String packageName;
     protected String directory;
+    protected String baseDir;
 
     public abstract void create();
 
@@ -33,5 +34,13 @@ public abstract class Generator {
 
     public void setDirectory(String directory) {
         this.directory = directory;
+    }
+
+    public String getBaseDir() {
+        return baseDir;
+    }
+
+    public void setBaseDir(String baseDir) {
+        this.baseDir = baseDir;
     }
 }

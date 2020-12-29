@@ -104,7 +104,12 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
 
         for (TestConfiguration test : getTests()) {
             if (test.getSwagger() != null) {
-                //TODO: Create object model
+                SwaggerJavaModelGenerator swaggerJavaModelGenerator = getSwaggerJavaModelGenerator();
+                swaggerJavaModelGenerator.setBaseDir(baseDir);
+                swaggerJavaModelGenerator.setPackageName(test.getPackageName());
+                swaggerJavaModelGenerator.setSwaggerResource(test.getSwagger().getFile());
+
+                swaggerJavaModelGenerator.create();
 
                 //Create citrus-context.xml and pom.xml
                 XmlGenerator xmlGenerator = new XmlGenerator();

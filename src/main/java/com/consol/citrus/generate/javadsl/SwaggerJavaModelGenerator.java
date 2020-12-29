@@ -6,15 +6,12 @@ import com.consol.citrus.util.FileUtils;
 import io.swagger.codegen.v3.ClientOptInput;
 import io.swagger.codegen.v3.DefaultGenerator;
 import io.swagger.codegen.v3.config.CodegenConfigurator;
-import org.apache.maven.project.MavenProject;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 
 public class SwaggerJavaModelGenerator extends Generator {
-    private MavenProject project;
-    private String baseDir = "C:/Users/Karpyuk/IdeaProjects/test-generators/generator-maven-plugin";
 
     @Override
     public void create() {

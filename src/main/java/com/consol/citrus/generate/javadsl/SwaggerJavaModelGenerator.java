@@ -21,7 +21,6 @@ public class SwaggerJavaModelGenerator extends Generator {
         CodegenConfigurator config = new CodegenConfigurator();
         DefaultGenerator generator = new DefaultGenerator();
         Class<?> clazz = DefaultGenerator.class;
-        Field field;
 
         try {
             config.setInputSpec(FileUtils.readToString(new PathMatchingResourcePatternResolver()
@@ -38,46 +37,23 @@ public class SwaggerJavaModelGenerator extends Generator {
 
         generator.opts(input);
 
+        System.setProperty("generateApis", "false");
+        System.setProperty("generateModels", "true");
+        System.setProperty("supportingFiles", "false");
+        System.setProperty("modelTests", "false");
+        System.setProperty("modelDocs", "false");
+        System.setProperty("apiTests", "false");
+        System.setProperty("apiDocs", "false");
+
         try {
-            field = clazz.getDeclaredField("generateApis");
-            field.setAccessible(true);
-            field.set(generator, false);
-
-            field = clazz.getDeclaredField("generateModels");
-            field.setAccessible(true);
-            field.set(generator, true);
-
-            field = clazz.getDeclaredField("generateSupportingFiles");
-            field.setAccessible(true);
-            field.set(generator, false);
-
-            field = clazz.getDeclaredField("generateApiTests");
-            field.setAccessible(true);
-            field.set(generator, false);
-
-            field = clazz.getDeclaredField("generateApiDocumentation");
-            field.setAccessible(true);
-            field.set(generator, false);
-
-            field = clazz.getDeclaredField("generateModelTests");
-            field.setAccessible(true);
-            field.set(generator, false);
-
-            field = clazz.getDeclaredField("generateModelDocumentation");
-            field.setAccessible(true);
-            field.set(generator, false);
-
-            field = clazz.getDeclaredField("generateSwaggerMetadata");
-            field.setAccessible(true);
-            field.set(generator, false);
-
-            field = clazz.getDeclaredField("generateSwaggerMetadata");
+            Field field = clazz.getDeclaredField("generateSwaggerMetadata");
             field.setAccessible(true);
             field.set(generator, false);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
 
+        generator.generate();
     }
 
 }

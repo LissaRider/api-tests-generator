@@ -10,13 +10,13 @@ import java.util.Collections;
 
 public class SwaggerJavaModelGeneratorTest {
     private String baseDir = Paths.get(".").toAbsolutePath().normalize().toString();
-    private String modelsDir = baseDir + "java/com/consol/citrus/models";
+    private String modelsDir = baseDir + "/src/main/java/com/consol/citrus/models";
 
     private final CleanupUtils cleanupUtils = new CleanupUtils();
 
     @AfterMethod
     public void cleanUp(){
-//       cleanupUtils.deleteFiles(modelsDir, Collections.singleton("*"));
+       cleanupUtils.deleteFiles(modelsDir, Collections.singleton("*"));
     }
 
     @Test

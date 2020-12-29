@@ -56,8 +56,8 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
     @Parameter(property = "citrus.build.coverage", defaultValue = "false")
     protected boolean isCoverage;
 
-    @Parameter(readonly = true, defaultValue = "${project.basedir}")
-    private String baseDir;
+    @Parameter(defaultValue = "${project}", readonly = true)
+    private MavenProject project;
 
     private final JavaDslTestGenerator javaTestGenerator;
     private final SwaggerJavaTestGenerator swaggerJavaTestGenerator;
@@ -101,7 +101,7 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
         for (TestConfiguration test : getTests()) {
             if (test.getSwagger() != null) {
                 SwaggerJavaModelGenerator swaggerJavaModelGenerator = getSwaggerJavaModelGenerator();
-                swaggerJavaModelGenerator.setBaseDir(baseDir);
+                swaggerJavaModelGenerator.setBaseDir(project.getBasedir().getAbsolutePath());
                 swaggerJavaModelGenerator.setPackageName(test.getPackageName());
                 swaggerJavaModelGenerator.setSwaggerResource(test.getSwagger().getFile());
 

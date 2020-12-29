@@ -75,7 +75,7 @@ public class GenerateTestMojoTest {
         verify(javaTestGenerator).create();
     }
     
-    @Test
+    @Test(enabled = false)
     public void testSuiteFromSwagger() throws MojoExecutionException, PrompterException, MojoFailureException {
         reset(swaggerJavaTestGenerator);
 

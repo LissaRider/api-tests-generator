@@ -59,6 +59,11 @@ public class XmlGenerator extends Generator {
         client.setAttribute("request-url", "https://petstore3.swagger.io");
         beansElement.appendChild(client);
 
+        Element objectMapper = doc.createElement("bean");
+        objectMapper.setAttribute("class", "com.fasterxml.jackson.databind.ObjectMapper");
+        objectMapper.setAttribute("name", "objectMapper");
+        beansElement.appendChild(objectMapper);
+
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         Transformer transformer = transformerFactory.newTransformer();
         DOMSource source = new DOMSource(doc);

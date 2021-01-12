@@ -52,9 +52,7 @@ public class MessagingJavaTestGenerator<T extends MessagingJavaTestGenerator> ex
 
     @Override
     protected JavaFile.Builder createJavaFileBuilder(TypeSpec.Builder testTypeBuilder) {
-        return super.createJavaFileBuilder(testTypeBuilder)
-                .addStaticImport(SendMessageAction.Builder.class, "send")
-                .addStaticImport(ReceiveMessageAction.Builder.class, "receive");
+        return super.createJavaFileBuilder(testTypeBuilder);
     }
 
     @Override

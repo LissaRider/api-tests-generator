@@ -40,8 +40,7 @@ public class JavaDslTestGenerator<T extends JavaDslTestGenerator> extends JavaTe
 
     @Override
     protected JavaFile.Builder createJavaFileBuilder(TypeSpec.Builder testTypeBuilder) {
-        return super.createJavaFileBuilder(testTypeBuilder)
-                .addStaticImport(EchoAction.Builder.class, "echo");
+        return super.createJavaFileBuilder(testTypeBuilder);
     }
 
     @Override

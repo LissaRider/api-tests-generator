@@ -59,14 +59,14 @@ public class JavaTestGenerator<T extends JavaTestGenerator> extends AbstractTest
      * Create the Java test with type and method information.
      */
     private void createJavaTest() {
-        FieldSpec fieldSpec = FieldSpec.builder(ObjectMapper.class, "objectMapper", Modifier.PRIVATE)
+        FieldSpec objectMapper = FieldSpec.builder(ObjectMapper.class, "objectMapper", Modifier.PRIVATE)
                 .addAnnotation(Autowired.class)
                 .build();
 
         final TypeSpec.Builder testTypeBuilder = TypeSpec.classBuilder(getName())
                 .addModifiers(Modifier.PUBLIC)
                 .addJavadoc(getJavaDoc())
-                .addField(fieldSpec)
+                .addField(objectMapper)
                 .addMethod(getTestMethod(getMethodName()));
 
         if (getFramework().equals(UnitFramework.JUNIT5)) {

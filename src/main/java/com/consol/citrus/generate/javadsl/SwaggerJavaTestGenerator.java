@@ -44,10 +44,6 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
     private JsonPathMappingDataDictionary inboundDataDictionary = new JsonPathMappingDataDictionary();
     private JsonPathMappingDataDictionary outboundDataDictionary = new JsonPathMappingDataDictionary();
 
-    public static void setCoverage(boolean isCoverage) {
-        SwaggerJavaTestGenerator.isCoverage = isCoverage;
-    }
-
     @Override
     protected JavaFile.Builder createJavaFileBuilder(TypeSpec.Builder testTypeBuilder) {
         return super.createJavaFileBuilder(testTypeBuilder)
@@ -488,5 +484,9 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
      */
     public String getOperation() {
         return operation;
+    }
+
+    public static void setCoverage(boolean isCoverage) {
+        SwaggerJavaTestGenerator.isCoverage = isCoverage;
     }
 }

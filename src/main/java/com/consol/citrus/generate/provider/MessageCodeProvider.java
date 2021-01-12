@@ -16,6 +16,7 @@
 
 package com.consol.citrus.generate.provider;
 
+import com.consol.citrus.http.message.HttpMessage;
 import com.consol.citrus.message.Message;
 import com.consol.citrus.message.MessageHeaders;
 import com.squareup.javapoet.CodeBlock;
@@ -44,7 +45,13 @@ public class MessageCodeProvider {
 
     private void providePayload(final CodeBlock.Builder code, final Message message) {
         if (StringUtils.hasText(message.getPayload(String.class))) {
-            code.add(".payload($S)\n", message.getPayload(String.class));
+            if (((HttpMessage) message).getRequestMethod() != null) {
+                String[] str = message.getPayload(String.class).split(",");
+                String variable = str[1].toLowerCase();
+                code.add(".payload($N, $N)\n", variable, "objectMapper");
+            } else {
+                code.add(".payload($S)\n", message.getPayload(String.class));
+            }
         }
     }
 }

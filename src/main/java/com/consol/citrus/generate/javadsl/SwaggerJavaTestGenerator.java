@@ -16,7 +16,6 @@ import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.*;
 import io.swagger.v3.oas.models.responses.ApiResponse;
-import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.http.HttpStatus;
@@ -117,8 +116,12 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
 
                     RequestBody requestBody = operation.getValue().getRequestBody();
 
-                    if (requestBody != null) {
-                        requestMessage.setPayload("${payload}");
+                    if (requestBody != null && requestBody.getContent().get("application/json") != null) {
+                        String ref = requestBody.getContent().get("application/json").getSchema().get$ref();
+                        if (ref != null) {
+                            String[] str = ref.split("/");
+                            requestMessage.setPayload(String.format("%s.%s,%s", getPackage(), "models", str[str.length - 1]));
+                        }
                     }
 
                     withRequest(requestMessage);

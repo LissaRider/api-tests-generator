@@ -19,8 +19,6 @@ package com.consol.citrus.generate.javadsl;
 import java.util.List;
 import java.util.Optional;
 
-import com.consol.citrus.actions.ReceiveMessageAction;
-import com.consol.citrus.actions.SendMessageAction;
 import com.consol.citrus.generate.provider.CodeProvider;
 import com.consol.citrus.generate.provider.ReceiveCodeProvider;
 import com.consol.citrus.generate.provider.SendCodeProvider;

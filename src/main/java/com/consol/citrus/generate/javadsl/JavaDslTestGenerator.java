@@ -19,7 +19,6 @@ package com.consol.citrus.generate.javadsl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.consol.citrus.actions.EchoAction;
 import com.consol.citrus.annotations.CitrusTest;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;

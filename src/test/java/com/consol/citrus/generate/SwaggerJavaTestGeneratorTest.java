@@ -16,12 +16,7 @@
 
 package com.consol.citrus.generate;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-
 import com.consol.citrus.CitrusSettings;
-import com.consol.citrus.generate.UnitFramework;
 import com.consol.citrus.generate.javadsl.SwaggerJavaTestGenerator;
 import com.consol.citrus.util.FileUtils;
 import com.consol.citrus.utils.CleanupUtils;
@@ -29,6 +24,10 @@ import org.springframework.core.io.FileSystemResource;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
 
 public class SwaggerJavaTestGeneratorTest {
     private String testDir = CitrusSettings.DEFAULT_TEST_SRC_DIRECTORY + "java/com/consol/citrus/";

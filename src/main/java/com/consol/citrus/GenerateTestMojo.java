@@ -17,22 +17,15 @@
 package com.consol.citrus;
 
 import com.consol.citrus.config.tests.TestConfiguration;
-import com.consol.citrus.generate.SwaggerTestGenerator;
 import com.consol.citrus.generate.TestGenerator;
 import com.consol.citrus.generate.XmlGenerator;
-import com.consol.citrus.generate.javadsl.JavaDslTestGenerator;
 import com.consol.citrus.generate.javadsl.SwaggerJavaModelGenerator;
 import com.consol.citrus.generate.javadsl.SwaggerJavaTestGenerator;
 import com.consol.citrus.generate.provider.http.HttpCodeProvider;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.springframework.util.StringUtils;
-
-import java.util.Optional;
 
 /**
  * @author Christoph Deppisch
@@ -59,38 +52,8 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
     @Parameter(defaultValue = "${project}", readonly = true)
     private MavenProject project;
 
-    private final JavaDslTestGenerator javaTestGenerator;
-    private final SwaggerJavaTestGenerator swaggerJavaTestGenerator;
-    private final SwaggerJavaModelGenerator swaggerJavaModelGenerator;
-    private final XmlGenerator xmlGenerator;
-
-    /**
-     * Default constructor.
-     */
-    public GenerateTestMojo() {
-        this(new JavaDslTestGenerator(),
-                new SwaggerJavaTestGenerator(),
-                new SwaggerJavaModelGenerator(),
-                new XmlGenerator());
-    }
-
-    /**
-     * Constructor using final fields.
-     * @param javaTestGenerator
-     * @param swaggerJavaTestGenerator
-     */
-    public GenerateTestMojo(JavaDslTestGenerator javaTestGenerator,
-                            SwaggerJavaTestGenerator swaggerJavaTestGenerator,
-                            SwaggerJavaModelGenerator swaggerJavaModelGenerator,
-                            XmlGenerator xmlGenerator) {
-        this.javaTestGenerator = javaTestGenerator;
-        this.swaggerJavaTestGenerator = swaggerJavaTestGenerator;
-        this.swaggerJavaModelGenerator = swaggerJavaModelGenerator;
-        this.xmlGenerator = xmlGenerator;
-    }
-
     @Override
-    public void doExecute() throws MojoExecutionException, MojoFailureException {
+    public void doExecute() {
         if (skipGenerateTest) {
             return;
         }
@@ -100,7 +63,7 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
 
         for (TestConfiguration test : getTests()) {
             if (test.getSwagger() != null) {
-                SwaggerJavaModelGenerator swaggerJavaModelGenerator = getSwaggerJavaModelGenerator();
+                SwaggerJavaModelGenerator swaggerJavaModelGenerator = new SwaggerJavaModelGenerator();
                 swaggerJavaModelGenerator.setBaseDir(project.getBasedir().getAbsolutePath());
                 swaggerJavaModelGenerator.setPackageName(test.getPackageName());
                 swaggerJavaModelGenerator.setSwaggerResource(test.getSwagger().getFile());
@@ -114,7 +77,7 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
                 xmlGenerator.create();
 
                 //Create tests
-                SwaggerTestGenerator generator = getSwaggerTestGenerator();
+                SwaggerJavaTestGenerator generator = new SwaggerJavaTestGenerator();
 
                 generator.withFramework(getFramework())
                         .withName(test.getName())
@@ -141,60 +104,7 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
                 generator.withNameSuffix(test.getSuffix());
 
                 generator.create();
-            } else {
-                if (!StringUtils.hasText(test.getName())) {
-                    throw new MojoExecutionException("Please provide proper test name! Test name must not be empty starting with uppercase letter!");
-                }
-
-                if (getType().equals("java")) {
-                    JavaDslTestGenerator generator = (JavaDslTestGenerator) getJavaTestGenerator()
-                            .withDisabled(test.isDisabled())
-                            .withFramework(getFramework())
-                            .withName(test.getName())
-                            .withAuthor(test.getAuthor())
-                            .withDescription(test.getDescription())
-                            .usePackage(test.getPackageName())
-                            .useSrcDirectory(buildDirectory);
-
-                    generator.create();
-                }
-
-                getLog().info("Successfully created new test case " + test.getPackageName() + "." + test.getName());
             }
         }
-    }
-
-    /**
-     * Method provides test generator instance. Basically introduced for better mocking capabilities in unit tests but
-     * also useful for subclasses to provide customized generator instance.
-     * .
-     * @return test generator.
-     */
-    public JavaDslTestGenerator getJavaTestGenerator() {
-        return Optional.ofNullable(javaTestGenerator).orElse(new JavaDslTestGenerator());
-    }
-
-    /**
-     * Method provides test generator instance. Basically introduced for better mocking capabilities in unit tests but
-     * also useful for subclasses to provide customized generator instance.
-     * .
-     * @return test generator.
-     */
-    public SwaggerTestGenerator getSwaggerTestGenerator() {
-        return Optional.ofNullable(swaggerJavaTestGenerator).orElse(new SwaggerJavaTestGenerator());
-    }
-
-    /**
-     * Method provides model generator instance. Basically introduced for better mocking capabilities in unit tests but
-     * also useful for subclasses to provide customized generator instance.
-     * .
-     * @return model generator.
-     */
-    public SwaggerJavaModelGenerator getSwaggerJavaModelGenerator() {
-        return Optional.ofNullable(swaggerJavaModelGenerator).orElse(new SwaggerJavaModelGenerator());
-    }
-
-    public XmlGenerator getXmlGenerator() {
-        return Optional.ofNullable(xmlGenerator).orElse(new XmlGenerator());
     }
 }

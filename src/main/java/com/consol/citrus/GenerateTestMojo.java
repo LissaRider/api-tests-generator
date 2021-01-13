@@ -18,7 +18,7 @@ package com.consol.citrus;
 
 import com.consol.citrus.config.tests.TestConfiguration;
 import com.consol.citrus.generate.TestGenerator;
-import com.consol.citrus.generate.XmlGenerator;
+import com.consol.citrus.generate.ResourcesGenerator;
 import com.consol.citrus.generate.javadsl.SwaggerJavaModelGenerator;
 import com.consol.citrus.generate.javadsl.SwaggerJavaTestGenerator;
 import com.consol.citrus.generate.provider.http.HttpCodeProvider;
@@ -71,10 +71,10 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
                 swaggerJavaModelGenerator.create();
 
                 //Create citrus-context.xml and pom.xml
-                XmlGenerator xmlGenerator = new XmlGenerator();
-                xmlGenerator.setDirectory(resourcesDirectory + "/");
+                ResourcesGenerator resourcesGenerator = new ResourcesGenerator();
+                resourcesGenerator.setDirectory(resourcesDirectory + "/");
 
-                xmlGenerator.create();
+                resourcesGenerator.create();
 
                 //Create tests
                 SwaggerJavaTestGenerator generator = new SwaggerJavaTestGenerator();

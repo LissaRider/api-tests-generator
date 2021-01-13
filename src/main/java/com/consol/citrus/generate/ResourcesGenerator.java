@@ -64,6 +64,10 @@ public class ResourcesGenerator extends Generator {
         objectMapper.setAttribute("name", "objectMapper");
         beansElement.appendChild(objectMapper);
 
+        Element messageListener = doc.createElement("bean");
+        messageListener.setAttribute("class", "org.example.MessageListener");
+        beansElement.appendChild(messageListener);
+
         doc.appendChild(beansElement);
 
         TransformerFactory transformerFactory = TransformerFactory.newInstance();

@@ -55,5 +55,4 @@ public class SwaggerJavaModelGenerator extends Generator {
 
         generator.generate();
     }
-
 }

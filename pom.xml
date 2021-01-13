@@ -202,6 +202,13 @@
       <artifactId>swagger-parser</artifactId>
       <version>2.0.24</version>
     </dependency>
+
+    <!--Logger for generated class-->
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>2.11.2</version>
+    </dependency>
   </dependencies>
 
   <repositories>

@@ -1,6 +1,7 @@
 package com.consol.citrus.generate;
 
 import com.consol.citrus.generate.javadsl.SwaggerJavaModelGenerator;
+import com.consol.citrus.generate.javadsl.UtilsClassGenerator;
 import com.consol.citrus.utils.CleanupUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
@@ -28,5 +29,15 @@ public class SwaggerJavaModelGeneratorTest {
         modelGenerator.setSwaggerResource("file:" + baseDir + "/src/test/resources/swagger/petstore.json");
 
         modelGenerator.create();
+    }
+
+    @Test
+    public void testCreateUtilsClass() {
+        UtilsClassGenerator utilsClassGenerator = new UtilsClassGenerator();
+
+        utilsClassGenerator.setBaseDir(baseDir + "/src/test/java");
+        utilsClassGenerator.setPackageName("com.consol.citrus");
+
+        utilsClassGenerator.create();
     }
 }

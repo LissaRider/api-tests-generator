@@ -1,14 +1,17 @@
 package com.consol.citrus.generate.javadsl;
 
 import com.consol.citrus.Generator;
+import com.consol.citrus.TestCase;
 import com.consol.citrus.context.TestContext;
+import com.consol.citrus.exceptions.CitrusRuntimeException;
 import com.consol.citrus.message.Message;
+import com.consol.citrus.report.MessageListener;
 import com.consol.citrus.report.MessageTracingTestListener;
 import com.squareup.javapoet.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
-
 import javax.lang.model.element.Modifier;
 import java.io.File;
 import java.io.IOException;
@@ -19,23 +22,35 @@ public class UtilsClassGenerator extends Generator {
 
     @Override
     public void create() {
+        TypeSpec customListener = getCustomListener();
+
         CodeBlock initLog = CodeBlock.builder()
                 .add("$T.getLogger($T.class.getSimpleName())",
-                        LogManager.class, MessageListenerExample.class).build();
+                        LogManager.class, MessageListener.class).build();
 
         FieldSpec logField = FieldSpec.builder(ClassName.get(Logger.class), "log")
                 .addModifiers(Modifier.STATIC, Modifier.PROTECTED)
                 .initializer(initLog)
                 .build();
 
+        MethodSpec bean = MethodSpec.methodBuilder("messageTracingTestListener")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addAnnotation(Bean.class)
+                .returns(ClassName.get(MessageTracingTestListener.class))
+                .addCode(CodeBlock.builder()
+                        .add("return new CustomMessageListener();\n")
+                        .build())
+                .build();
+
         TypeSpec classBuilder = TypeSpec.classBuilder("MessageListener")
-                .addType(getCustomListener())
+                .addMethod(bean)
+                .addType(customListener)
                 .addModifiers(Modifier.PUBLIC)
                 .addField(logField)
                 .addAnnotation(Component.class)
                 .build();
 
-        JavaFile javaFile = JavaFile.builder(packageName, classBuilder)
+        JavaFile javaFile = JavaFile.builder(packageName, classBuilder).indent("    ")
                 .build();
 
         try {
@@ -78,11 +93,40 @@ public class UtilsClassGenerator extends Generator {
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .addParameters(getParameters())
-                .addCode(getMessageMethod("OUTBOUND_MESSAGE:"))
+                .addCode(getMessageMethod("OUTBOUND_MESSAGE"))
                 .build();
+
+        MethodSpec onTestFinish = MethodSpec.methodBuilder("onTestFinish")
+                .addAnnotation(Override.class)
+                .addParameter(ParameterSpec.builder(TestCase.class, "test").build())
+                .addModifiers(Modifier.PUBLIC)
+                .addCode(CodeBlock.builder()
+                        .add("super.onTestFinish(test);\n")
+                        .add("stringBuilder.setLength(0);\n")
+                        .build()).build();
+
+        MethodSpec separator = MethodSpec.methodBuilder("separator")
+                .addModifiers(Modifier.PRIVATE)
+                .returns(ClassName.get(String.class))
+                .addCode(CodeBlock.builder()
+                        .add("return \"======================================================================\";\n")
+                        .build())
+                .build();
+
+        MethodSpec afterPropertiesSet = MethodSpec.methodBuilder("afterPropertiesSet")
+                .addModifiers(Modifier.PUBLIC)
+                .addException(ClassName.get(Exception.class))
+                .addCode(CodeBlock.builder()
+                        .add("try {\n\tsuper.afterPropertiesSet();\n} catch ($T ignore) {}\n", CitrusRuntimeException.class)
+                        .build())
+                .build();
+
 
         methodSpecs.add(onInboundMessage);
         methodSpecs.add(onOutboundMessage);
+        methodSpecs.add(onTestFinish);
+        methodSpecs.add(separator);
+        methodSpecs.add(afterPropertiesSet);
 
         return methodSpecs;
     }
@@ -98,9 +142,9 @@ public class UtilsClassGenerator extends Generator {
 
     private CodeBlock getMessageMethod(String text) {
         return CodeBlock.builder()
-                .add("stringBuilder.append(\"" + text +":\").append(newLine()).append(message).append(newLine()).append(separator()).append(newLine());\n\n")
+                .add("stringBuilder.append(\"" + text +":\").append(\"n\").append(message).append(\"n\").append(separator()).append(\"n\");\n\n")
                 .add("log.info(\"\\n\" + separator() + \"\\n" + text + ":\\n\" + message.toString() + \"\\n\" + separator());\n\n")
-                .add("super.onInboundMessage(message, context);")
+                .add("super.onInboundMessage(message, context);\n")
                 .build();
 
     }

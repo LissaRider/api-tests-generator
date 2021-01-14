@@ -31,7 +31,7 @@ public class SwaggerJavaModelGeneratorTest {
         modelGenerator.create();
     }
 
-    @Test
+    //@Test
     public void testCreateUtilsClass() {
         UtilsClassGenerator utilsClassGenerator = new UtilsClassGenerator();
 

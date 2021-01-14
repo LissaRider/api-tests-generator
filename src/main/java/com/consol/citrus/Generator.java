@@ -9,6 +9,7 @@ public abstract class Generator {
     protected String packageName;
     protected String directory;
     protected String baseDir;
+    protected String endpoint;
 
     public abstract void create();
 
@@ -42,5 +43,13 @@ public abstract class Generator {
 
     public void setBaseDir(String baseDir) {
         this.baseDir = baseDir;
+    }
+
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
     }
 }

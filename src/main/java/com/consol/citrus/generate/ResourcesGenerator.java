@@ -55,7 +55,7 @@ public class ResourcesGenerator extends Generator {
         repository.appendChild(schemas);
 
         Element client = doc.createElement("citrus-http:client");
-        client.setAttribute("id", "httpClient");
+        client.setAttribute("id", getEndpoint());
         client.setAttribute("request-url", "https://petstore3.swagger.io");
         beansElement.appendChild(client);
 
@@ -65,7 +65,7 @@ public class ResourcesGenerator extends Generator {
         beansElement.appendChild(objectMapper);
 
         Element messageListener = doc.createElement("bean");
-        messageListener.setAttribute("class", "org.example.MessageListener");
+        messageListener.setAttribute("class", getPackageName() + ".MessageListener");
         beansElement.appendChild(messageListener);
 
         doc.appendChild(beansElement);

@@ -73,7 +73,7 @@ Configuration:
 `framework` - использование тестового фреймворка: testng, junit4, junit5. По умолчанию: testng;  
 `isCoverage` - генерация декодера для citrus-swagger-covegare. По умолчанию: false;  
 `buildDirectory` - директория куда будут сгенерированы тесты. По умолчанию: /target/generated/citrus/; 
-`tests > test > endpoint` - указывает адрес тестируемого сервиса;  
+`tests > test > endpoint` - имя переменной с урл клиента;  
 `tests > test > author` - указывает в javaDoc имя автора тестов. По умолчанию: "Unknown";  
 `tests > test > packageName` - задаёт структуру папок для сгенерированных тестов. По умолчанию: com.consol.citrus;  
 `tests > test > description` - создаёт описание тестов в javaDoc. По умолчанию: "TODO: Description"; 

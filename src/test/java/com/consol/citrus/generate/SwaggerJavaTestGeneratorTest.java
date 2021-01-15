@@ -49,14 +49,12 @@ public class SwaggerJavaTestGeneratorTest {
                 .withFramework(UnitFramework.TESTNG);
 
         generator.withNamePrefix("UserLoginClient_");
-        generator.withSpec("swagger/petstore.json");
+        generator.withSpec("swagger/openapi.json");
 
         generator.create();
 
-        verifyTest("UserLoginClient_createUser_default_IT");
-        verifyTest("UserLoginClient_loginUser_200_IT");
-        verifyTest("UserLoginClient_logoutUser_default_IT");
-        verifyTest("UserLoginClient_getUserByName_200_IT");
+        verifyTest("UserLoginClient_addPet_200_IT");
+        verifyTest("UserLoginClient_addPet_405_IT");
     }
 
     private void verifyTest(String name) throws IOException {

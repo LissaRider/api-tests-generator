@@ -21,7 +21,7 @@ import com.consol.citrus.generate.TestGenerator;
 import com.consol.citrus.generate.ResourcesGenerator;
 import com.consol.citrus.generate.javadsl.SwaggerJavaModelGenerator;
 import com.consol.citrus.generate.javadsl.SwaggerJavaTestGenerator;
-import com.consol.citrus.generate.javadsl.UtilsClassGenerator;
+import com.consol.citrus.generate.javadsl.MessageListenerGenerator;
 import com.consol.citrus.generate.provider.http.HttpCodeProvider;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -73,11 +73,11 @@ public class GenerateTestMojo extends AbstractCitrusMojo {
                 swaggerJavaModelGenerator.create();
 
                 //Create MessageListener
-                UtilsClassGenerator utilsClassGenerator = new UtilsClassGenerator();
-                utilsClassGenerator.setBaseDir(mainDirectory);
-                utilsClassGenerator.setPackageName(test.getPackageName());
+                MessageListenerGenerator messageListenerGenerator = new MessageListenerGenerator();
+                messageListenerGenerator.setBaseDir(mainDirectory);
+                messageListenerGenerator.setPackageName(test.getPackageName());
 
-                utilsClassGenerator.create();
+                messageListenerGenerator.create();
 
                 //Create citrus-context.xml and log4j2.xml
                 ResourcesGenerator resourcesGenerator = new ResourcesGenerator();

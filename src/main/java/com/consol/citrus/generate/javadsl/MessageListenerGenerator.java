@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UtilsClassGenerator extends Generator {
+public class MessageListenerGenerator extends Generator {
 
     @Override
     public void create() {

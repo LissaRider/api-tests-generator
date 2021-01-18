@@ -17,7 +17,7 @@
 package com.consol.citrus.generate;
 
 import com.consol.citrus.CitrusSettings;
-import com.consol.citrus.generate.xml.XmlTestGenerator;
+import com.consol.citrus.generate.javadsl.JavaTestGenerator;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -50,7 +50,7 @@ public class TestGeneratorMain {
                 return;
             }
 
-            XmlTestGenerator generator = (XmlTestGenerator) new XmlTestGenerator()
+            JavaTestGenerator generator = (JavaTestGenerator) new JavaTestGenerator()
                     .withName(cmd.getOptionValue("name"))
                     .withAuthor(cmd.getOptionValue("author", "Unknown"))
                     .withDescription(cmd.getOptionValue("description", "TODO: Description"))

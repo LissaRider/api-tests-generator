@@ -70,12 +70,6 @@ public class TestConfiguration implements Serializable {
     private SwaggerConfiguration swagger;
 
     @Parameter
-    private WsdlConfiguration wsdl;
-
-    @Parameter
-    private XsdConfiguration xsd;
-
-    @Parameter
     private DataDictionaryConfiguration dictionary;
 
     /**
@@ -202,42 +196,6 @@ public class TestConfiguration implements Serializable {
      */
     public void setSwagger(SwaggerConfiguration swagger) {
         this.swagger = swagger;
-    }
-
-    /**
-     * Gets the wsdl.
-     *
-     * @return
-     */
-    public WsdlConfiguration getWsdl() {
-        return wsdl;
-    }
-
-    /**
-     * Sets the wsdl.
-     *
-     * @param wsdl
-     */
-    public void setWsdl(WsdlConfiguration wsdl) {
-        this.wsdl = wsdl;
-    }
-
-    /**
-     * Gets the xsd.
-     *
-     * @return
-     */
-    public XsdConfiguration getXsd() {
-        return xsd;
-    }
-
-    /**
-     * Sets the xsd.
-     *
-     * @param xsd
-     */
-    public void setXsd(XsdConfiguration xsd) {
-        this.xsd = xsd;
     }
 
     /**

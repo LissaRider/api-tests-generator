@@ -14,15 +14,10 @@
  * limitations under the License.
  */
 
-package com.consol.citrus.generate.javadsl;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
+package com.consol.citrus.generate;
 
 import com.consol.citrus.CitrusSettings;
-import com.consol.citrus.generate.TestGenerator;
-import com.consol.citrus.generate.UnitFramework;
+import com.consol.citrus.generate.javadsl.SwaggerJavaTestGenerator;
 import com.consol.citrus.util.FileUtils;
 import com.consol.citrus.utils.CleanupUtils;
 import org.springframework.core.io.FileSystemResource;
@@ -30,10 +25,10 @@ import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
-/**
- * @author Christoph Deppisch
- * @since 2.7.4
- */
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+
 public class SwaggerJavaTestGeneratorTest {
     private String testDir = CitrusSettings.DEFAULT_TEST_SRC_DIRECTORY + "java/com/consol/citrus/";
 
@@ -48,40 +43,18 @@ public class SwaggerJavaTestGeneratorTest {
     public void testCreateTestAsClient() throws IOException {
         SwaggerJavaTestGenerator generator = new SwaggerJavaTestGenerator();
 
-        generator.withAuthor("Christoph")
+        generator.withAuthor("Unknown")
                 .withDescription("This is a sample test")
                 .usePackage("com.consol.citrus")
                 .withFramework(UnitFramework.TESTNG);
 
         generator.withNamePrefix("UserLoginClient_");
-        generator.withSpec("com/consol/citrus/swagger/user-login-api.json");
+        generator.withSpec("swagger/openapi.json");
 
         generator.create();
 
-        verifyTest("UserLoginClient_createUser_IT");
-        verifyTest("UserLoginClient_loginUser_IT");
-        verifyTest("UserLoginClient_logoutUser_IT");
-        verifyTest("UserLoginClient_getUserByName_IT");
-    }
-
-    @Test
-    public void testCreateTestAsServer() throws IOException {
-        SwaggerJavaTestGenerator generator = new SwaggerJavaTestGenerator();
-
-        generator.withAuthor("Christoph")
-                .withDescription("This is a sample test")
-                .usePackage("com.consol.citrus")
-                .withFramework(UnitFramework.TESTNG);
-
-        generator.withMode(TestGenerator.GeneratorMode.SERVER);
-        generator.withSpec("com/consol/citrus/swagger/user-login-api.json");
-
-        generator.create();
-
-        verifyTest("UserLoginService_createUser_IT");
-        verifyTest("UserLoginService_loginUser_IT");
-        verifyTest("UserLoginService_logoutUser_IT");
-        verifyTest("UserLoginService_getUserByName_IT");
+        verifyTest("UserLoginClient_addPet_200_IT");
+        verifyTest("UserLoginClient_addPet_405_IT");
     }
 
     private void verifyTest(String name) throws IOException {
@@ -89,7 +62,7 @@ public class SwaggerJavaTestGeneratorTest {
         Assert.assertTrue(javaFile.exists());
 
         String javaContent = FileUtils.readToString(new FileSystemResource(javaFile));
-        Assert.assertTrue(javaContent.contains("@author Christoph"));
+        Assert.assertTrue(javaContent.contains("@author Unknown"));
         Assert.assertTrue(javaContent.contains("public class " + name));
         Assert.assertTrue(javaContent.contains("* This is a sample test"));
         Assert.assertTrue(javaContent.contains("package com.consol.citrus;"));

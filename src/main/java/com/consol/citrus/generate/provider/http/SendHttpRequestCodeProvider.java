@@ -18,7 +18,12 @@ package com.consol.citrus.generate.provider.http;
 
 import com.consol.citrus.generate.provider.CodeProvider;
 import com.consol.citrus.http.message.HttpMessage;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
+import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @since 2.7.4
@@ -30,6 +35,22 @@ public class SendHttpRequestCodeProvider implements CodeProvider<HttpMessage>{
     @Override
     public CodeBlock getCode(final String endpoint, final HttpMessage message) {
         final CodeBlock.Builder code = CodeBlock.builder();
+        final String formatPath = message.getPath().replaceAll("\\{", "\\${");
+        message.path(formatPath);
+
+        if (StringUtils.hasText(message.getPayload(String.class))) {
+            String[] str = message.getPayload(String.class).split(",");
+            String packageName = str[0];
+            String className = str[1];
+            code.add("$T $N = null;\n\n", ClassName.get(packageName, className), className.toLowerCase());
+        }
+
+        List<String> pathParams = getPathParams(formatPath);
+        pathParams.forEach(s -> code.add("variable($S, null);\n", s));
+        if (!pathParams.isEmpty()) {
+            code.add("\n");
+        }
+
 
         code.add("runner.run(http().client($S)\n", endpoint);
         code.indent();
@@ -40,5 +61,19 @@ public class SendHttpRequestCodeProvider implements CodeProvider<HttpMessage>{
         code.add(");");
 
         return code.build();
+    }
+
+    private static List<String> getPathParams(String formatPath) {
+        List<String> pathParams = new ArrayList<>();
+        String[] str = formatPath.split("/");
+        for (String path : str) {
+            String result;
+            if (path.startsWith("$")) {
+                result = path.substring(2, path.length() - 1);
+                pathParams.add(result);
+            }
+        }
+
+        return pathParams;
     }
 }

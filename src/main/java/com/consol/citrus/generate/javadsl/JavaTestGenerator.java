@@ -30,14 +30,9 @@ import com.consol.citrus.annotations.CitrusXmlTest;
 import com.consol.citrus.exceptions.CitrusRuntimeException;
 import com.consol.citrus.generate.AbstractTestGenerator;
 import com.consol.citrus.generate.UnitFramework;
-import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.squareup.javapoet.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @since 2.7.4
@@ -64,9 +59,14 @@ public class JavaTestGenerator<T extends JavaTestGenerator> extends AbstractTest
      * Create the Java test with type and method information.
      */
     private void createJavaTest() {
+        FieldSpec objectMapper = FieldSpec.builder(ObjectMapper.class, "objectMapper", Modifier.PRIVATE)
+                .addAnnotation(Autowired.class)
+                .build();
+
         final TypeSpec.Builder testTypeBuilder = TypeSpec.classBuilder(getName())
                 .addModifiers(Modifier.PUBLIC)
                 .addJavadoc(getJavaDoc())
+                .addField(objectMapper)
                 .addMethod(getTestMethod(getMethodName()));
 
         if (getFramework().equals(UnitFramework.JUNIT5)) {

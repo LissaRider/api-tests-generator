@@ -19,7 +19,6 @@ package com.consol.citrus.generate.javadsl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.consol.citrus.actions.EchoAction;
 import com.consol.citrus.annotations.CitrusTest;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
@@ -40,8 +39,7 @@ public class JavaDslTestGenerator<T extends JavaDslTestGenerator> extends JavaTe
 
     @Override
     protected JavaFile.Builder createJavaFileBuilder(TypeSpec.Builder testTypeBuilder) {
-        return super.createJavaFileBuilder(testTypeBuilder)
-                .addStaticImport(EchoAction.Builder.class, "echo");
+        return super.createJavaFileBuilder(testTypeBuilder);
     }
 
     @Override
@@ -54,8 +52,6 @@ public class JavaDslTestGenerator<T extends JavaDslTestGenerator> extends JavaTe
 
     @Override
     protected List<CodeBlock> getActions() {
-        List<CodeBlock> codeBlocks = new ArrayList<>();
-        codeBlocks.add(CodeBlock.builder().add("runner.run(echo(\"TODO: Code the test $L\"));", getName()).build());
-        return codeBlocks;
+        return new ArrayList<>();
     }
 }

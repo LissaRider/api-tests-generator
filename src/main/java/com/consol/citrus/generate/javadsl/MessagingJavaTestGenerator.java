@@ -19,8 +19,6 @@ package com.consol.citrus.generate.javadsl;
 import java.util.List;
 import java.util.Optional;
 
-import com.consol.citrus.actions.ReceiveMessageAction;
-import com.consol.citrus.actions.SendMessageAction;
 import com.consol.citrus.generate.provider.CodeProvider;
 import com.consol.citrus.generate.provider.ReceiveCodeProvider;
 import com.consol.citrus.generate.provider.SendCodeProvider;
@@ -52,27 +50,17 @@ public class MessagingJavaTestGenerator<T extends MessagingJavaTestGenerator> ex
 
     @Override
     protected JavaFile.Builder createJavaFileBuilder(TypeSpec.Builder testTypeBuilder) {
-        return super.createJavaFileBuilder(testTypeBuilder)
-                .addStaticImport(SendMessageAction.Builder.class, "send")
-                .addStaticImport(ReceiveMessageAction.Builder.class, "receive");
+        return super.createJavaFileBuilder(testTypeBuilder);
     }
 
     @Override
     protected List<CodeBlock> getActions() {
         List<CodeBlock> codeBlocks = super.getActions();
 
-        if (getMode().equals(GeneratorMode.CLIENT)) {
-            codeBlocks.add(getSendRequestCodeProvider(request).getCode(Optional.ofNullable(endpoint).orElse(getMode().name().toLowerCase()), generateOutboundMessage(request)));
+        codeBlocks.add(getSendRequestCodeProvider(request).getCode(Optional.ofNullable(endpoint).orElse(getMode().name().toLowerCase()), generateOutboundMessage(request)));
 
-            if (response != null) {
-                codeBlocks.add(getReceiveResponseCodeProvider(response).getCode(Optional.ofNullable(endpoint).orElse(getMode().name().toLowerCase()), generateInboundMessage(response)));
-            }
-        } else if (getMode().equals(GeneratorMode.SERVER)) {
-            codeBlocks.add(getReceiveRequestCodeProvider(request).getCode(Optional.ofNullable(endpoint).orElse(getMode().name().toLowerCase()), generateInboundMessage(request)));
-
-            if (response != null) {
-                codeBlocks.add(getSendResponseCodeProvider(response).getCode(Optional.ofNullable(endpoint).orElse(getMode().name().toLowerCase()), generateOutboundMessage(response)));
-            }
+        if (response != null) {
+            codeBlocks.add(getReceiveResponseCodeProvider(response).getCode(Optional.ofNullable(endpoint).orElse(getMode().name().toLowerCase()), generateInboundMessage(response)));
         }
 
         return codeBlocks;

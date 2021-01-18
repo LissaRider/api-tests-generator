@@ -2,7 +2,8 @@
 version 3.0.0 only positive test cases
 
 generator-maven-plugin - это генератор API тестов на основе OAS 2 (Swagger)
-с использованием Citrus framework.
+с использованием Citrus framework.  
+*Прим. версия для OpenApi 3.0 расположена в ветке 3.1* 
 
 Системные требования
 --------------------

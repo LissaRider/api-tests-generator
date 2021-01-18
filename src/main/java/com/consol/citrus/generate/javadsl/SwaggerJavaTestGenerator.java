@@ -175,10 +175,10 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
      */
     private String getEndpointName(String endpoint) {
         StringBuilder sb = new StringBuilder();
-        String[] str = Arrays.stream(endpoint.split("/"))
-                .filter(s -> !s.contains("{")).toArray(String[]::new);
+        String[] str = endpoint.split("/");
 
         for (String s : str) {
+            s = s.replaceAll("[{}]", "");
             if (s.length() > 0 && Character.isAlphabetic(s.charAt(0))) {
                 char upper = Character.toUpperCase(s.charAt(0));
                 sb.append(upper).append(s.substring(1));

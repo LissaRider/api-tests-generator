@@ -18,6 +18,7 @@
     <swagger.version>1.0.32</swagger.version>
     <maven.version>3.5.2</maven.version>
     <lombok.version>1.18.16</lombok.version>
+    <swagger.codegen>3.0.23</swagger.codegen>
   </properties>
 
   <build>
@@ -52,12 +53,12 @@
     <dependency>
       <groupId>io.swagger.codegen.v3</groupId>
       <artifactId>swagger-codegen-maven-plugin</artifactId>
-      <version>3.0.23</version>
+      <version>${swagger.codegen}</version>
     </dependency>
     <dependency>
       <groupId>io.swagger.codegen.v3</groupId>
       <artifactId>swagger-codegen</artifactId>
-      <version>3.0.23</version>
+      <version>${swagger.codegen}</version>
     </dependency>
     <dependency>
       <groupId>com.consol.citrus</groupId>

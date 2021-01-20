@@ -17,6 +17,8 @@ public class SwaggerJavaModelGenerator extends Generator {
     public void create() {
         CodegenConfigurator config = new CodegenConfigurator();
         config.setLibrary("resteasy");
+        config.addAdditionalProperty("useBeanValidation", true);
+        config.addAdditionalProperty("enable303", true);
         DefaultGenerator generator = new DefaultGenerator();
         Class<?> clazz = DefaultGenerator.class;
 

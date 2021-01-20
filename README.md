@@ -82,7 +82,25 @@ Configuration:
 Для работы тестов необходимо добавить ряд зависимостей:  
 *Прим. генератор работает только с Citrus Framework версии 3.0.0-M1*  
 ```xml
-    <dependencies>
+        <dependencies>
+            <!--Validation schema-->
+            <dependency>
+                <groupId>org.glassfish</groupId>
+                <artifactId>javax.el</artifactId>
+                <version>3.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate.validator</groupId>
+                <artifactId>hibernate-validator</artifactId>
+                <version>6.0.13.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>2.0.1.Final</version>
+            </dependency>
+    
+            <!--Swagger Codegen-->
             <dependency>
                 <groupId>org.threeten</groupId>
                 <artifactId>threetenbp</artifactId>
@@ -93,6 +111,8 @@ Configuration:
                 <artifactId>swagger-core</artifactId>
                 <version>2.1.6</version>
             </dependency>
+    
+            <!--Logging-->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
@@ -115,6 +135,8 @@ Configuration:
                 <artifactId>log4j-slf4j-impl</artifactId>
                 <version>2.13.3</version>
             </dependency>
+    
+            <!--Test frameworks-->
             <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>

@@ -42,7 +42,7 @@ public class SendHttpRequestCodeProvider implements CodeProvider<HttpMessage>{
             String[] str = message.getPayload(String.class).split(",");
             String packageName = str[0];
             String className = str[1];
-            code.add("$T $N = null;\n\n", ClassName.get(packageName, className), className.toLowerCase());
+            code.add("$T request = null;\n\n", ClassName.get(packageName, className));
         }
 
         List<String> pathParams = getPathParams(formatPath);

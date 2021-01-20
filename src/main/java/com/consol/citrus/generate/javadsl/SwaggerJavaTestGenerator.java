@@ -152,10 +152,12 @@ public class SwaggerJavaTestGenerator extends MessagingJavaTestGenerator<Swagger
                             }
                         }
 
-                        if (response.getContent() != null) {
-                            Schema responseSchema = response.getContent().get("application/json").getSchema();
-                            control = new HashMap<>();
-                            responseMessage.setPayload(createValidationExpression(responseSchema, openAPI.getComponents().getSchemas()));
+                        if (response.getContent() != null && response.getContent().get("application/json") != null) {
+                            String ref = response.getContent().get("application/json").getSchema().get$ref();
+                            if (ref != null) {
+                                String[] str = ref.split("/");
+                                responseMessage.setPayload(String.format("%s.%s,%s", getPackage(), "models", str[str.length - 1]));
+                            }
                         }
                     }
 

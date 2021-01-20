@@ -17,6 +17,8 @@
 package com.consol.citrus.generate.javadsl;
 
 import javax.lang.model.element.Modifier;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -27,9 +29,11 @@ import java.util.stream.Stream;
 import com.consol.citrus.TestCaseRunner;
 import com.consol.citrus.annotations.CitrusResource;
 import com.consol.citrus.annotations.CitrusXmlTest;
+import com.consol.citrus.context.TestContext;
 import com.consol.citrus.exceptions.CitrusRuntimeException;
 import com.consol.citrus.generate.AbstractTestGenerator;
 import com.consol.citrus.generate.UnitFramework;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.javapoet.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,10 +67,15 @@ public class JavaTestGenerator<T extends JavaTestGenerator> extends AbstractTest
                 .addAnnotation(Autowired.class)
                 .build();
 
+        FieldSpec validator = FieldSpec.builder(Validator.class, "validator", Modifier.PRIVATE)
+                .initializer(CodeBlock.builder().add("$T.buildDefaultValidatorFactory().getValidator()", Validation.class).build())
+                .build();
+
         final TypeSpec.Builder testTypeBuilder = TypeSpec.classBuilder(getName())
                 .addModifiers(Modifier.PUBLIC)
                 .addJavadoc(getJavaDoc())
                 .addField(objectMapper)
+                .addField(validator)
                 .addMethod(getTestMethod(getMethodName()));
 
         if (getFramework().equals(UnitFramework.JUNIT5)) {
@@ -136,14 +145,21 @@ public class JavaTestGenerator<T extends JavaTestGenerator> extends AbstractTest
                 .builder(TestCaseRunner.class, "runner")
                 .addAnnotation(CitrusResource.class);
 
+        final ParameterSpec.Builder contextParamBuilder = ParameterSpec
+                .builder(TestContext.class, "context")
+                .addAnnotation(CitrusResource.class);
+
         if(getFramework().equals(UnitFramework.TESTNG)){
             methodParamBuilder.addAnnotation(createTestNgAnnotationBuilder("Optional").build());
+            contextParamBuilder.addAnnotation(createTestNgAnnotationBuilder("Optional").build());
         }
 
         final MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(name)
                 .addModifiers(Modifier.PUBLIC)
+                .addException(ClassName.get(JsonProcessingException.class))
                 .addAnnotation(getCitrusAnnotation())
-                .addParameter(methodParamBuilder.build());
+                .addParameter(methodParamBuilder.build())
+                .addParameter(contextParamBuilder.build());
 
         Stream.of(getTestAnnotations()).forEach(methodBuilder::addAnnotation);
 
@@ -237,7 +253,7 @@ public class JavaTestGenerator<T extends JavaTestGenerator> extends AbstractTest
         }
 
         final AnnotationSpec.Builder parametersBuilder = createTestNgAnnotationBuilder("Parameters");
-        parametersBuilder.addMember("value","$S", "runner");
+        parametersBuilder.addMember("value","{$S, $S}", "runner", "context");
 
         return new AnnotationSpec[] { testAnnotationBuilder.build(), parametersBuilder.build() };
     }

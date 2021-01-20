@@ -16,9 +16,15 @@
 
 package com.consol.citrus.generate.provider.http;
 
+import com.consol.citrus.exceptions.TestCaseFailedException;
 import com.consol.citrus.generate.provider.CodeProvider;
 import com.consol.citrus.http.message.HttpMessage;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
+import org.springframework.util.StringUtils;
+
+import javax.validation.ConstraintViolation;
+import java.util.Set;
 
 /**
  * @author Christoph Deppisch
@@ -39,6 +45,47 @@ public class ReceiveHttpResponseCodeProvider implements CodeProvider<HttpMessage
         httpCodeProvider.provideResponseConfiguration(code, message);
         code.unindent();
         code.add(");");
+
+        if (StringUtils.hasText(message.getPayload(String.class))) {
+            code.add(getValidation(message.getPayload(String.class)));
+        }
+
+        return code.build();
+    }
+
+    private CodeBlock getValidation(String message) {
+        final CodeBlock.Builder code = CodeBlock.builder();
+
+        String[] str = message.split(",");
+        String packageName = str[0];
+        String className = str[1];
+        ClassName responseClass = ClassName.get(packageName, className);
+
+        code.add("\n\n");
+        code.add("$T response = objectMapper.readValue(context\n", responseClass);
+        code.indent();
+        code.add(".getMessageStore()\n");
+        code.add(".getMessage(\"response\")\n");
+        code.add(".getPayload($T.class), $T.class);\n\n", String.class, responseClass);
+        code.unindent();
+        code.add("$T<$T<$T>> violations = validator.validate(response);\n\n",
+                Set.class,
+                ConstraintViolation.class,
+                responseClass);
+        code.add("if (violations.size() > 0) {\n");
+        code.indent();
+        code.add("String message = \"\\n\";\n");
+        code.add("for ($T<$T> violation : violations) {\n",
+                ConstraintViolation.class,
+                responseClass);
+        code.indent();
+        code.add("message = $T.format(\"%sПоле ['%s'] %s\\n\", message, violation.getPropertyPath(), violation.getMessage());\n",
+                String.class);
+        code.unindent();
+        code.add("}\n");
+        code.add("throw new $T(new Throwable(message));\n", TestCaseFailedException.class);
+        code.unindent();
+        code.add("}\n");
 
         return code.build();
     }

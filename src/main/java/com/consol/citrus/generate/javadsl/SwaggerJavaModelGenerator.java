@@ -16,6 +16,7 @@ public class SwaggerJavaModelGenerator extends Generator {
     @Override
     public void create() {
         CodegenConfigurator config = new CodegenConfigurator();
+        config.setLibrary("resteasy");
         DefaultGenerator generator = new DefaultGenerator();
         Class<?> clazz = DefaultGenerator.class;
 

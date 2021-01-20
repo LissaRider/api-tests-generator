@@ -20,7 +20,7 @@ Maven - 3.3 и выше
                         <plugin>
                             <groupId>ru.lanit.generator</groupId>
                             <artifactId>generator-maven-plugin</artifactId>
-                            <version>3.1.1</version>
+                            <version>3.1.2</version>
                             <executions>
                                 <execution>
                                     <id>generate-tests</id>

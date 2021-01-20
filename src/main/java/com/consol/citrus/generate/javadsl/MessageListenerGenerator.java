@@ -142,7 +142,7 @@ public class MessageListenerGenerator extends Generator {
 
     private CodeBlock getMessageMethod(String text) {
         return CodeBlock.builder()
-                .add("stringBuilder.append(\"" + text +":\").append(\"n\").append(message).append(\"n\").append(separator()).append(\"n\");\n\n")
+                .add("stringBuilder.append(\"" + text +":\").append(\"\\n\").append(message).append(\"\\n\").append(separator()).append(\"\\n\");\n\n")
                 .add("log.info(\"\\n\" + separator() + \"\\n" + text + ":\\n\" + message.toString() + \"\\n\" + separator());\n\n")
                 .add("super.onInboundMessage(message, context);\n")
                 .build();
